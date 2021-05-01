@@ -1,0 +1,3 @@
+[submodule "usb-relay-device/usb-relay-hid"]
+	path = usb-relay-device/usb-relay-hid
+	url = https://github.com/pavel-a/usb-relay-hid.git

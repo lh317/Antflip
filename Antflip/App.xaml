@@ -1,0 +1,26 @@
+﻿<Application x:Class="Antflip.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:local="clr-namespace:Antflip"
+             xmlns:usb="clr-namespace:Antflip.USBRelay"
+             xmlns:controls="clr-namespace:Antflip.Controls"
+             xmlns:m="clr-namespace:ModernWpf.Markup;assembly=ModernWpf"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+          <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Modern WPF Themese and styling -->
+                <ui:ThemeResources />
+                <ui:XamlControlsResources />
+                <ResourceDictionary Source="Controls\LEDLabel.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Style settings for LEDLabel -->
+            <SolidColorBrush x:Key="LEDLabelOuterEllipseCheckedFill" Color="Green" />
+            <m:StaticResource x:Key="LEDLabelOuterEllipseCheckedStroke" ResourceKey="RadioButtonOuterEllipseCheckedStroke" />
+            <SolidColorBrush x:Key="LEDLabelOuterEllipseFillDisconnected" Color="Red" />
+            <m:StaticResource x:Key="LEDLabelOuterEllipseStrokeDisconnected" ResourceKey="RadioButtonOuterEllipseStroke" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
