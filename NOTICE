@@ -1,0 +1,20 @@
+Antflip
+Copyright 2021 lh317
+
+This program as a whole is licensed under the GPL version 3, as some components
+are licensed under GPL version 3.
+
+The software in the Antflip directory is licensed under the Apache 2.0 license,
+except as follows:
+
+The file Antflip/BindableBase.cs is derived from
+https://github.com/PrismLibrary/Prism/blob/master/src/Prism.Core/Mvvm/BindableBase.cs
+and is licensed under the MIT License.
+
+The file Antflip/RelayCommand.cs is derived from
+https://github.com/PrismLibrary/Prism/blob/master/src/Prism.Core/Commands/DelegateCommand%7BT%7D.cs
+and is licensed under the MIT license.
+
+The file Antflip/Controls/LEDLabel.xaml is derived from
+https://github.com/Kinnara/ModernWpf/blob/master/ModernWpf/Styles/RadioButton.xaml
+and is licensed under the MIT license.
