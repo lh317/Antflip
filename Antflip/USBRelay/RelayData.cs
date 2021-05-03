@@ -26,7 +26,7 @@ namespace Antflip.USBRelay {
 
     public record RelayData
     {
-        private static readonly SwitchedBandData DefaultSwitchedBandData = new SwitchedBandData {
+        private static readonly SwitchedBandData DefaultSwitchedBandData = new() {
             UpperStack = new RelayActions {
                 Open = new List<int> { 8 },
                 Close = new List<int> { 9 },
@@ -55,13 +55,13 @@ namespace Antflip.USBRelay {
             }
         };
 
-        private static readonly RelayActions DefaultWARCBandData = new RelayActions {
+        private static readonly RelayActions DefaultWARCBandData = new() {
             Open = new List<int> { 6 },
             Close = new List<int> { 5 },
             Default = true
         };
 
-        public static RelayData DefaultRelayData => new RelayData {
+        public static RelayData DefaultRelayData => new() {
             Band160M = new DirectionalBandData {
                 North = new RelayActions {
                     Close = new List<int> {1,2,3,5},
