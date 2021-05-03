@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Globalization;
 using System.Windows;
@@ -21,12 +22,10 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
 
-using Antflip.USBRelay;
-
 using ModernWpf.Controls;
-using Antflip.Pages;
-using System.Collections.Specialized;
 
+using Antflip.Pages;
+using Antflip.USBRelay;
 namespace Antflip
 {
     public abstract class MenuItem
@@ -158,10 +157,12 @@ namespace Antflip
 
         public IReadOnlyList<Relay> Relays { get; } = relays;
 
+        [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
         public RelayData RelayData => RelayData.DefaultRelayData;
 
         public IReadOnlyList<MenuItem> MenuItems { get; }
 
+        [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
         public Type SettingsPage => typeof(Pages.Settings);
 
         public MenuItemToPageConverter MenuItemToPage { get; }
