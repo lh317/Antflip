@@ -32,6 +32,6 @@ namespace Antflip {
             set => Set(ref _isConnected, value);
         }
 
-        public Relay(string label) => this.Label = label;
+        public Relay(string label) => this._label = label;
     }
 }
