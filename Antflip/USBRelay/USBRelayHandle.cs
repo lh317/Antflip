@@ -12,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Antflip.USBRelay
 {
     public class USBRelayHandle : SafeHandle
     {
+        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static USBRelayHandle usb_relay_device_enumerate();
 
+        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static void usb_relay_device_free_enumerate(USBRelayHandle handle);
 

@@ -13,6 +13,7 @@
 // limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Antflip.USBRelay
@@ -21,12 +22,15 @@ namespace Antflip.USBRelay
 
     public class USBRelayControl
     {
+        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static int usb_relay_device_get_status_bitmap(USBRelayHandle handle);
 
+        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static int usb_relay_device_open_one_relay_channel(USBRelayHandle handle, int index);
 
+        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static int usb_relay_device_close_one_relay_channel(USBRelayHandle handle, int index);
 
