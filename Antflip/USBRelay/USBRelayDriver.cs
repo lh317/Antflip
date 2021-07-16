@@ -55,9 +55,9 @@ namespace Antflip.USBRelay {
             var handle = root;
             try {
                 for (; !handle.IsInvalid; handle = usb_relay_device_next_dev(handle)) {
-                    var num = usb_relay_device_get_num_relays(root);
+                    var num = usb_relay_device_get_num_relays(handle);
                     this.RelayCount += num;
-                    var idPtr = usb_relay_device_get_id_string(root);
+                    var idPtr = usb_relay_device_get_id_string(handle);
                     var id = Marshal.PtrToStringAnsi(idPtr) ?? throw new InvalidOperationException();
                     boards.Add(new(id, num), handle);
                 }
