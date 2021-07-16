@@ -27,8 +27,6 @@ namespace Antflip.Pages {
         public RelayActions UpperStack => this.data.UpperStack;
         public RelayActions LowerStack => this.data.LowerStack;
         public RelayActions BothStack => this.data.BothStack;
-        public RelayActions Antenna1 => this.data.Antenna1;
-        public RelayActions Antenna2 => this.data.Antenna2;
         public RelayActions EnableAmpSwap => this.data.EnableAmpSwap;
         public RelayActions DisableAmpSwap => this.data.DisableAmpSwap;
     }

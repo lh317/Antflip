@@ -39,19 +39,15 @@ namespace Antflip.USBRelay {
             BothStack = new RelayActions {
                 Open = new List<int> { 8, 9 },
             },
-            Antenna1 = new RelayActions {
-                Open = new List<int> { 5 },
-                Default = true
-            },
-            Antenna2 = new RelayActions {
-                Close = new List<int> { 5 }
-            },
             DisableAmpSwap = new RelayActions {
                 Close = new List<int> { 7 },
-                Default = true
             },
             EnableAmpSwap = new RelayActions {
                 Open = new List<int> { 7 },
+                Default = true
+            },
+            Load = new RelayActions {
+                Open = new List<int> { 5 }
             }
         };
 
@@ -145,7 +141,8 @@ namespace Antflip.USBRelay {
                     {4, "40M"},
                 },
                 Load = new RelayActions {
-                    Open = new List<int> {4}
+                    Open = new List<int> {4, 7},
+
                 }
             },
             UNUN = new SwitchData {

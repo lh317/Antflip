@@ -10,7 +10,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. 
+limitations under the License.
 -->
 <ui:Page x:Class="Antflip.Pages.StackedBand"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -92,40 +92,6 @@ limitations under the License.
                 </Behaviors:ConditionBehavior>
               </Behaviors:Interaction.Behaviors>
               <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding LowerStack}" />
-            </Behaviors:EventTrigger>
-          </Behaviors:Interaction.Triggers>
-        </RadioButton>
-        <RadioButton GroupName="Ant" Grid.Column="2" Content="ANT1" IsChecked="{Binding Antenna1.Default, Mode=OneTime}">
-        <Behaviors:Interaction.Triggers>
-            <Behaviors:EventTrigger EventName="Checked">
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Antenna1}" />
-            </Behaviors:EventTrigger>
-            <Behaviors:EventTrigger EventName="Loaded">
-              <Behaviors:Interaction.Behaviors>
-                <Behaviors:ConditionBehavior>
-                  <Behaviors:ConditionalExpression>
-                    <Behaviors:ComparisonCondition LeftOperand="{Binding Path=IsChecked, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type RadioButton}}}" Operator="Equal" RightOperand="True" />
-                  </Behaviors:ConditionalExpression>
-                </Behaviors:ConditionBehavior>
-              </Behaviors:Interaction.Behaviors>
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Antenna1}" />
-            </Behaviors:EventTrigger>
-          </Behaviors:Interaction.Triggers>
-        </RadioButton>
-        <RadioButton GroupName="Ant" Grid.Row="1" Grid.Column="2" Content="ANT2" IsChecked="{Binding Antenna2.Default, Mode=OneTime}">
-        <Behaviors:Interaction.Triggers>
-            <Behaviors:EventTrigger EventName="Checked">
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Antenna2}" />
-            </Behaviors:EventTrigger>
-            <Behaviors:EventTrigger EventName="Loaded">
-              <Behaviors:Interaction.Behaviors>
-                <Behaviors:ConditionBehavior>
-                  <Behaviors:ConditionalExpression>
-                    <Behaviors:ComparisonCondition LeftOperand="{Binding Path=IsChecked, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type RadioButton}}}" Operator="Equal" RightOperand="True" />
-                  </Behaviors:ConditionalExpression>
-                </Behaviors:ConditionBehavior>
-              </Behaviors:Interaction.Behaviors>
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Antenna2}" />
             </Behaviors:EventTrigger>
           </Behaviors:Interaction.Triggers>
         </RadioButton>
