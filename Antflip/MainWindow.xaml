@@ -25,7 +25,7 @@ limitations under the License.
         ui:WindowHelper.UseModernWindowStyle="True"
         Title="Antenna Flip"
         Height="450"
-        Width="800">
+        Width="850">
   <Window.DataContext>
     <local:MainWindowContext/>
   </Window.DataContext>
@@ -77,6 +77,18 @@ limitations under the License.
                                              CommandParameter="{Binding Path=RelayData.UNUN.Disable}" />
             </Behaviors:EventTrigger>
           </Behaviors:Interaction.Triggers>
+        </ui:AppBarToggleButton>
+        <ui:AppBarToggleButton Label="PSWAP" IsChecked="{Binding PSWAPChecked}" Visibility="{Binding PSWAPVisible}">
+            <Behaviors:Interaction.Triggers>
+                <Behaviors:EventTrigger EventName="Checked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}"
+                                        CommandParameter="{Binding RelayData.AmpSwap.Enable}" />
+                </Behaviors:EventTrigger>
+                <Behaviors:EventTrigger EventName="Unchecked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}"
+                                        CommandParameter="{Binding Path=RelayData.AmpSwap.Disable}" />
+                </Behaviors:EventTrigger>
+            </Behaviors:Interaction.Triggers>
         </ui:AppBarToggleButton>
       </ui:CommandBar>
     </Grid>

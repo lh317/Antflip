@@ -183,6 +183,20 @@ namespace Antflip
             set => this.Set(ref ununChecked, value);
         }
 
+        private Visibility _pswapVisible = Visibility.Hidden;
+        public Visibility PSWAPVisible {
+            get => _pswapVisible;
+            set {
+                this.Set(ref _pswapVisible, value);
+            }
+        }
+
+        private bool pswapChecked = false;
+        public bool PSWAPChecked {
+            get => pswapChecked;
+            set => this.Set(ref pswapChecked, value);
+        }
+
         private void DoBoardCollectionChanged() {
             if (null != this.usbRelay) {
                 this.usbRelay.Opened -= this.DoRelayOpened;
@@ -212,6 +226,7 @@ namespace Antflip
                 relay.IsOn = false;
             }
             this.UNUNChecked = false;
+            this.PSWAPChecked = false;
             var page = (Page)e.Content;
             if (page.GetType() == this.SettingsPage) {
                 foreach (var (item, label) in this.Relays.Zip(labels)) {
@@ -230,6 +245,7 @@ namespace Antflip
                 }
                 var isDirectional = selectedItem?.Page == typeof(Pages.DirectionalBand);
                 this.UNUNVisible = (isDirectional == true) ? Visibility.Visible : Visibility.Hidden;
+                this.PSWAPVisible = (isDirectional == true) ? Visibility.Visible : Visibility.Hidden;
                 page.DataContext = this.selectedItem?.MakeContext(this) ?? throw new InvalidOperationException();
             }
         }
