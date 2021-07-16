@@ -130,7 +130,7 @@ namespace Antflip
 
         private readonly USBRelayDriver usbDriver = new();
         private readonly ObservableCollection<USBRelayBoard> boards;
-        private USBRelayControl? usbRelay;
+        private IUSBRelayControl? usbRelay;
 
         internal MenuItem? selectedItem = null;
 
@@ -151,6 +151,11 @@ namespace Antflip
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
             );
             this.boards = new(usbDriver);
+#if DEBUG
+            if (usbDriver.Count == 0) {
+                this.boards = new(TEST_BOARDS);
+            }
+#endif
             this.boards.CollectionChanged += ((s,e) => this.DoBoardCollectionChanged());
             this.DoBoardCollectionChanged();
         }
@@ -202,8 +207,16 @@ namespace Antflip
                 this.usbRelay.Opened -= this.DoRelayOpened;
                 this.usbRelay.Closed -= this.DoRelayClosed;
             }
+#if DEBUG
+            if (usbDriver.Count == 0) {
+                this.usbRelay = new VirtualUSBRelayControl(16);
+            } else {
+                this.usbRelay = usbDriver.ControlRelays(this.boards);
+            }
+#else
             this.usbRelay = usbDriver.ControlRelays(this.boards);
-             var opened = this.usbRelay.GetOpenRelays().Select((o, i) => (this.Relays[i], o));
+#endif
+            var opened = this.usbRelay.GetOpenRelays().Where((o, i) => i < this.Relays.Count).Select((o, i) => (this.Relays[i], o));
             foreach (var (relay, open) in opened) {
                 relay.IsConnected = true;
                 relay.IsOn = open;

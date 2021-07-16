@@ -14,13 +14,23 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Antflip.USBRelay
 {
     public record USBRelay(USBRelayHandle Handle, int Index);
 
-    public class USBRelayControl
+    public interface IUSBRelayControl {
+        public event EventHandler<USBRelayEventData>? Opened;
+        public event EventHandler<USBRelayEventData>? Closed;
+
+        public bool Actuate(RelayActions actions);
+
+        public IList<bool> GetOpenRelays();
+    }
+
+    public class USBRelayControl : IUSBRelayControl
     {
         [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
@@ -82,6 +92,34 @@ namespace Antflip.USBRelay
                 ret.Add(((status >> i) & 0x1) == 1);
             }
             return ret;
+        }
+    }
+
+    public class VirtualUSBRelayControl : IUSBRelayControl
+    {
+        private readonly int count;
+
+        public VirtualUSBRelayControl(int relayCount) => this.count = relayCount;
+
+        public event EventHandler<USBRelayEventData>? Opened;
+        public event EventHandler<USBRelayEventData>? Closed;
+
+        public bool Actuate(RelayActions actions) {
+            foreach(var linearIdx in actions.Close) {
+                if (linearIdx >= 0 && linearIdx < this.count) {
+                    this.Closed?.Invoke(this, new(linearIdx));
+                }
+            }
+            foreach(var linearIdx in actions.Open) {
+                if (linearIdx >= 0 && linearIdx < this.count) {
+                    this.Opened?.Invoke(this, new(linearIdx));
+                }
+            }
+            return true;
+        }
+
+        public IList<bool> GetOpenRelays() {
+            return Enumerable.Repeat(false, this.count-1).ToList();
         }
     }
 }
