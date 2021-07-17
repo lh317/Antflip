@@ -39,16 +39,13 @@ namespace Antflip.USBRelay {
             BothStack = new RelayActions {
                 Open = new List<int> { 8, 9 },
             },
+            // Default is not wired up in the UI for this action.
             DisableAmpSwap = new RelayActions {
                 Close = new List<int> { 7 },
             },
             EnableAmpSwap = new RelayActions {
                 Open = new List<int> { 7 },
-                Default = true
             },
-            Load = new RelayActions {
-                Open = new List<int> { 5 }
-            }
         };
 
         private static readonly RelayActions DefaultWARCBandData = new() {
@@ -137,11 +134,8 @@ namespace Antflip.USBRelay {
                 }
             },
             Band40M = DefaultSwitchedBandData with {
-                Labels = new Dictionary<int, string> {
-                    {4, "40M"},
-                },
                 Load = new RelayActions {
-                    Open = new List<int> {4, 7},
+                    Open = new List<int> {5},
 
                 }
             },
@@ -216,9 +210,6 @@ namespace Antflip.USBRelay {
         public RelayActions UpperStack {get; init;} = new();
         public RelayActions LowerStack {get; init;} = new();
         public RelayActions BothStack {get; init;} = new();
-
-        public RelayActions Antenna1 {get; init;} = new();
-        public RelayActions Antenna2 {get; init;} = new();
 
         public RelayActions EnableAmpSwap {get; init;} = new();
         public RelayActions DisableAmpSwap {get; init;} = new();

@@ -114,7 +114,7 @@ namespace Antflip
             "SOUTH",
             "80N",
             "UNUN",
-            "ANT1",
+            "40M",
             "WARC",
             "PSWAP",
             "UPPER",
