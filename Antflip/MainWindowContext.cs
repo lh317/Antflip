@@ -118,7 +118,8 @@ namespace Antflip
             "WARC",
             "PSWAP",
             "UPPER",
-            "LOWER"
+            "LOWER",
+            "BOTH",
         };
 
         private static readonly USBRelayBoard[] TEST_BOARDS = new USBRelayBoard[] {

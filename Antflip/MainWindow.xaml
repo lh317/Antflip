@@ -24,8 +24,8 @@ limitations under the License.
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
         Title="Antenna Flip"
-        Height="450"
-        Width="850">
+        Height="460"
+        Width="920">
   <Window.DataContext>
     <local:MainWindowContext/>
   </Window.DataContext>

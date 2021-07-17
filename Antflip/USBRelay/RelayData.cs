@@ -29,15 +29,15 @@ namespace Antflip.USBRelay {
         private static readonly SwitchedBandData DefaultSwitchedBandData = new() {
             UpperStack = new RelayActions {
                 Open = new List<int> { 8 },
-                Close = new List<int> { 9 },
+                Close = new List<int> { 9, 10 },
                 Default = true
             },
             LowerStack = new RelayActions {
                 Open = new List<int> { 9 },
-                Close = new List<int> { 8 },
+                Close = new List<int> { 8, 10 },
             },
             BothStack = new RelayActions {
-                Open = new List<int> { 8, 9 },
+                Open = new List<int> { 8, 9, 10 },
             },
             // Default is not wired up in the UI for this action.
             DisableAmpSwap = new RelayActions {
