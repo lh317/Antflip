@@ -119,7 +119,7 @@ namespace Antflip
             "PSWAP",
             "UPPER",
             "LOWER",
-            "BOTH",
+            "SINGLE",
         };
 
         private static readonly USBRelayBoard[] TEST_BOARDS = new USBRelayBoard[] {
