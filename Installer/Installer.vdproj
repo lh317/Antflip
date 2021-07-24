@@ -43,6 +43,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -182,15 +190,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Antflip"
-        "ProductCode" = "8:{AAA11BC2-1EB5-4453-B609-1B410D97E179}"
-        "PackageCode" = "8:{A05B0374-49BD-48F0-9ED7-B54E270A98D5}"
+        "ProductCode" = "8:{7A0FC331-78FF-4397-B17B-AF09FD939A38}"
+        "PackageCode" = "8:{CF81DAA3-E4A5-4751-80D7-047C24959EF3}"
         "UpgradeCode" = "8:{A52F6333-2C88-4A7F-8FD0-600D0C2CE7D6}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.1"
+        "ProductVersion" = "8:1.1.2"
         "Manufacturer" = "8:Antflip"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

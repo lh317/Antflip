@@ -37,8 +37,7 @@ namespace Antflip.USBRelay {
                 Close = new List<int> { 8 },
             },
             BothStack = new RelayActions {
-                Open = new List<int> { 8, 9 },
-                Close = new List<int> { 10 },
+                Close = new List<int> {8, 9, 10 },
             },
             // Default is not wired up in the UI for this action.
             DisableAmpSwap = new RelayActions {
