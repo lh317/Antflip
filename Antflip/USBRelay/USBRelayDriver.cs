@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 
 namespace Antflip.USBRelay {
 
-    public record USBRelayBoard(string Name, int NumDevices);
+    public record USBRelayBoard(int Index, string Name, int NumDevices);
 
     public sealed class USBRelayDriver : IReadOnlyCollection<USBRelayBoard>, IDisposable
     {
@@ -46,20 +46,25 @@ namespace Antflip.USBRelay {
         private extern static int usb_relay_device_close_all_relay_channel(USBRelayHandle hHandle);
 
         private readonly USBRelayHandle root;
-
-        private readonly Dictionary<USBRelayBoard, USBRelayHandle> boards = new();
+        private readonly List<USBRelayBoard> boards = new(2);
+        private readonly List<USBRelayHandle> handles = new(2);
 
         public USBRelayDriver() {
             this.RelayCount = 0;
             this.root = USBRelayHandle.Create();
-            var handle = root;
             try {
-                for (; !handle.IsInvalid; handle = usb_relay_device_next_dev(handle)) {
+                var handle = root;
+                for (int i=0; !handle.IsInvalid; handle = usb_relay_device_next_dev(handle), ++i) {
+                    this.handles.Add(handle);
                     var num = usb_relay_device_get_num_relays(handle);
                     this.RelayCount += num;
                     var idPtr = usb_relay_device_get_id_string(handle);
-                    var id = Marshal.PtrToStringAnsi(idPtr) ?? throw new InvalidOperationException();
-                    boards.Add(new(id, num), handle);
+                    var name = Marshal.PtrToStringAnsi(idPtr) ?? throw new InvalidOperationException();
+                    var dupes = this.boards.Where(b => b.Name.StartsWith(name)).Count();
+                    if (dupes > 0) {
+                        name = string.Format("{0} ({1})", name, dupes + 1);
+                    }
+                    this.boards.Add(new(i, name, num));
                 }
             } catch {
                 root.Dispose();
@@ -72,7 +77,7 @@ namespace Antflip.USBRelay {
         public USBRelayControl ControlRelays(IEnumerable<USBRelayBoard> boards) {
             var list = new List<USBRelay>(this.RelayCount);
             foreach(var b in boards) {
-                var handle = this.boards[b];
+                var handle = this.handles[b.Index];
                 for (var i = 0; i < b.NumDevices; i++) {
                     list.Add(new(handle, i+1));
                 }
@@ -82,24 +87,24 @@ namespace Antflip.USBRelay {
 
         public bool CloseAll() {
             bool ret = true;
-            for (var handle = this.root; !handle.IsInvalid; handle = usb_relay_device_next_dev(handle)) {
+            foreach(var handle in handles) {
                 ret &= usb_relay_device_close_all_relay_channel(handle) == 0;
             }
             return ret;
         }
 
         public bool OpenChannels(USBRelayBoard board) {
-            return usb_relay_device_open_all_relay_channel(this.boards[board]) == 0;
+            return usb_relay_device_open_all_relay_channel(this.handles[board.Index]) == 0;
         }
 
         public bool CloseChannels(USBRelayBoard board) {
-            return usb_relay_device_close_all_relay_channel(this.boards[board]) == 0;
+            return usb_relay_device_close_all_relay_channel(this.handles[board.Index]) == 0;
         }
 
         public int Count => this.boards.Count;
 
         public IEnumerator<USBRelayBoard> GetEnumerator() {
-            return this.boards.Keys.GetEnumerator();
+            return this.boards.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
@@ -107,7 +112,7 @@ namespace Antflip.USBRelay {
         }
 
         public void Dispose() {
-            root.Dispose();
+            this.root.Dispose();
             GC.SuppressFinalize(this);
         }
 

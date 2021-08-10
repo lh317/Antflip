@@ -50,6 +50,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -190,15 +198,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Antflip"
-        "ProductCode" = "8:{7A0FC331-78FF-4397-B17B-AF09FD939A38}"
-        "PackageCode" = "8:{CF81DAA3-E4A5-4751-80D7-047C24959EF3}"
+        "ProductCode" = "8:{8675BF58-74EB-438F-8729-159585DDC0A1}"
+        "PackageCode" = "8:{763C516A-3C81-452F-ACDB-FBDC45932EBA}"
         "UpgradeCode" = "8:{A52F6333-2C88-4A7F-8FD0-600D0C2CE7D6}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.2"
+        "ProductVersion" = "8:1.2.0"
         "Manufacturer" = "8:Antflip"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -820,7 +828,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F6D57694BDD747749AF971831FC8ED54"
             {
-            "SourcePath" = "8:..\\Antflip\\obj\\Release\\net5.0-windows10.0.18362.0\\apphost.exe"
+            "SourcePath" = "8:..\\Antflip\\obj\\Debug\\net5.0-windows10.0.18362.0\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_28B9A9F9F5E94F0CBC3F9C44BA7DBA9F"

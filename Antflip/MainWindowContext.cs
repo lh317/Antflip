@@ -123,8 +123,8 @@ namespace Antflip
         };
 
         private static readonly USBRelayBoard[] TEST_BOARDS = new USBRelayBoard[] {
-            new("Board 1", 8),
-            new("Board 2", 8)
+            new(0, "Board 1", 8),
+            new(1, "Board 2", 8)
         };
 
         private static readonly IReadOnlyList<Relay> relays = labels.Select(l => new Relay(l)).ToList();
