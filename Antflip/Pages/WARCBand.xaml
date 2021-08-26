@@ -28,6 +28,10 @@ limitations under the License.
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
         </Style>
+        <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+        </Style>
     </ui:Page.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -43,7 +47,7 @@ limitations under the License.
         <RadioButton Grid.Row="1" Grid.Column="1" IsChecked="True" Content="WARC">
             <Behaviors:Interaction.Triggers>
                 <Behaviors:EventTrigger EventName="Checked">
-                  <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Actions}" />
+                  <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding WARC}" />
                 </Behaviors:EventTrigger>
                 <Behaviors:EventTrigger EventName="Loaded">
                   <Behaviors:Interaction.Behaviors>
@@ -53,9 +57,34 @@ limitations under the License.
                       </Behaviors:ConditionalExpression>
                     </Behaviors:ConditionBehavior>
                   </Behaviors:Interaction.Behaviors>
-                  <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Actions}" />
+                  <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding WARC}" />
                 </Behaviors:EventTrigger>
               </Behaviors:Interaction.Triggers>
         </RadioButton>
+        <ToggleButton Grid.Row="2" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding EnableAmpSwap.Default, Mode=OneTime}">
+            <Behaviors:Interaction.Triggers>
+                <Behaviors:EventTrigger EventName="Checked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+                </Behaviors:EventTrigger>
+                <Behaviors:EventTrigger EventName="Unchecked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding DisableAmpSwap}" />
+                </Behaviors:EventTrigger>
+                <Behaviors:EventTrigger EventName="Loaded">
+                    <Behaviors:Interaction.Behaviors>
+                        <Behaviors:ConditionBehavior>
+                            <Behaviors:ConditionalExpression>
+                                <Behaviors:ComparisonCondition LeftOperand="{Binding Path=IsChecked, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ToggleButton}}}" Operator="Equal" RightOperand="True" />
+                            </Behaviors:ConditionalExpression>
+                        </Behaviors:ConditionBehavior>
+                    </Behaviors:Interaction.Behaviors>
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+                </Behaviors:EventTrigger>
+            </Behaviors:Interaction.Triggers>
+        </ToggleButton>
+        <Behaviors:Interaction.Triggers>
+            <Behaviors:EventTrigger EventName="Loaded">
+                <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Load}" />
+            </Behaviors:EventTrigger>
+        </Behaviors:Interaction.Triggers>
     </Grid>
 </ui:Page>

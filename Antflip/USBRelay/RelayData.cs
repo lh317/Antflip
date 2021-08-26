@@ -26,6 +26,15 @@ namespace Antflip.USBRelay {
 
     public record RelayData
     {
+        private static readonly SwitchData DefaultAmpSwap = new() {
+            Enable = new RelayActions {
+                Open = new List<int> { 7 },
+            },
+            Disable = new RelayActions {
+                Close = new List<int> { 7 },
+            }
+        };
+
         private static readonly SwitchedBandData DefaultSwitchedBandData = new() {
             UpperStack = new RelayActions {
                 Open = new List<int> { 8, 10 },
@@ -40,18 +49,20 @@ namespace Antflip.USBRelay {
                 Close = new List<int> {8, 9, 10 },
             },
             // Default is not wired up in the UI for this action.
-            DisableAmpSwap = new RelayActions {
-                Close = new List<int> { 7 },
-            },
-            EnableAmpSwap = new RelayActions {
-                Open = new List<int> { 7 },
-            },
+            DisableAmpSwap = DefaultAmpSwap.Disable,
+            EnableAmpSwap = DefaultAmpSwap.Enable
         };
 
-        private static readonly RelayActions DefaultWARCBandData = new() {
-            Open = new List<int> { 6 },
-            Close = new List<int> { 5 },
-            Default = true
+        private static readonly WARCBandData DefaultWARCBandData = new() {
+            WARC = new RelayActions {
+                Open = new List<int> { 6 },
+                Close = new List<int> { 5 },
+                Default = true,
+            },
+            EnableAmpSwap = DefaultAmpSwap.Enable with {
+                Default = true
+            },
+            DisableAmpSwap = DefaultAmpSwap.Disable
         };
 
         public static RelayData DefaultRelayData => new() {
@@ -167,11 +178,11 @@ namespace Antflip.USBRelay {
         public DirectionalBandData Band160M {get; init;} = new();
         public DirectionalBandData Band80M {get; init;} = new();
         public SwitchedBandData Band40M { get; init; } = new();
-        public RelayActions Band30M { get; init; } = new();
+        public WARCBandData Band30M { get; init; } = new();
         public SwitchedBandData Band20M { get; init; } = new();
-        public RelayActions Band17M { get; init; } = new();
+        public WARCBandData Band17M { get; init; } = new();
         public SwitchedBandData Band15M { get; init; } = new();
-        public RelayActions Band12M { get; init; } = new();
+        public WARCBandData Band12M { get; init; } = new();
         public SwitchedBandData Band10M { get; init; } = new();
 
         public SwitchData UNUN {get; init;} = new();
@@ -213,5 +224,15 @@ namespace Antflip.USBRelay {
 
         public RelayActions EnableAmpSwap {get; init;} = new();
         public RelayActions DisableAmpSwap {get; init;} = new();
+    }
+
+    public record WARCBandData
+    {
+        public RelayActions Load { get; init; } = new();
+
+        public RelayActions WARC { get; init; } = new();
+
+        public RelayActions EnableAmpSwap { get; init; } = new();
+        public RelayActions DisableAmpSwap { get; init; } = new();
     }
 }

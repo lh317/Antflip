@@ -17,12 +17,17 @@ using Antflip.USBRelay;
 
 namespace Antflip.Pages {
     public class WARCBandContext {
+        private readonly WARCBandData data;
 
-        public WARCBandContext(ICommand actuate, RelayActions actions)
-            => (this.ActuateCommand, this.Actions) = (actuate, actions);
+        public WARCBandContext(ICommand actuate, WARCBandData data)
+            => (this.ActuateCommand, this.data) = (actuate, data);
 
         public ICommand ActuateCommand { get; init; }
 
-        public RelayActions Actions { get; init; }
+        public RelayActions Load => this.data.Load;
+        public RelayActions WARC => this.data.WARC;
+
+        public RelayActions EnableAmpSwap => this.data.EnableAmpSwap;
+        public RelayActions DisableAmpSwap => this.data.DisableAmpSwap;
     }
 }

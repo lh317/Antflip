@@ -71,13 +71,13 @@ namespace Antflip
     }
 
     public class WARCMenuItem : MenuItem
-    {
+    { 
         public override Type Page => typeof(WARCBand);
-        public override RelayActions Data { get; }
+        public override WARCBandData Data { get; }
 
-        public WARCMenuItem(string content, RelayActions data)
+        public WARCMenuItem(string content, WARCBandData data)
             : base(content)
-            => this.Data = data;
+            => (this.Data) = (data);
 
         public override object MakeContext(MainWindowContext context) {
             return new WARCBandContext(context.ActuateCommand, this.Data);
@@ -258,8 +258,8 @@ namespace Antflip
                     }
                 }
                 var isDirectional = selectedItem?.Page == typeof(Pages.DirectionalBand);
-                this.UNUNVisible = (isDirectional == true) ? Visibility.Visible : Visibility.Hidden;
-                this.PSWAPVisible = (isDirectional == true) ? Visibility.Visible : Visibility.Hidden;
+                this.UNUNVisible = (isDirectional) ? Visibility.Visible : Visibility.Hidden;
+                this.PSWAPVisible = (isDirectional) ? Visibility.Visible : Visibility.Hidden;
                 page.DataContext = this.selectedItem?.MakeContext(this) ?? throw new InvalidOperationException();
             }
         }
