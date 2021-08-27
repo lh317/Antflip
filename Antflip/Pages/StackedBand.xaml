@@ -43,6 +43,7 @@ limitations under the License.
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <RadioButton GroupName="Stack" Content="Upper" IsChecked="{Binding UpperStack.Default, Mode=OneTime}">
           <Behaviors:Interaction.Triggers>
@@ -95,7 +96,7 @@ limitations under the License.
             </Behaviors:EventTrigger>
           </Behaviors:Interaction.Triggers>
         </RadioButton>
-        <ToggleButton Grid.Row="2" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding EnableAmpSwap.Default, Mode=OneTime}">
+        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding EnableAmpSwap.Default, Mode=OneTime}">
             <Behaviors:Interaction.Triggers>
             <Behaviors:EventTrigger EventName="Checked">
               <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />

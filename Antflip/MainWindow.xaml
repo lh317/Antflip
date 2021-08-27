@@ -24,8 +24,8 @@ limitations under the License.
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
         Title="Antenna Flip"
-        Height="460"
-        Width="920">
+        Height="500"
+        Width="650">
   <Window.DataContext>
     <local:MainWindowContext/>
   </Window.DataContext>
@@ -56,41 +56,17 @@ limitations under the License.
         </Behaviors:Interaction.Triggers>
       </ui:Frame>
       <ui:CommandBar Grid.Row="1">
-        <ui:CommandBar.Content>
-            <ui:ItemsRepeater ItemsSource="{Binding Relays}">
-                <DataTemplate DataType="local:Relay">
-                    <controls:LEDLabel Margin="6,6,0,0" Content="{Binding Label}" IsChecked="{Binding IsOn}" IsConnected="{Binding IsConnected}"/>
-                </DataTemplate>
-                 <ui:ItemsRepeater.Layout>
-                    <ui:StackLayout Orientation="Horizontal" />
-                </ui:ItemsRepeater.Layout>
-            </ui:ItemsRepeater>
-        </ui:CommandBar.Content>
-        <ui:AppBarToggleButton Label="UNUN" IsChecked="{Binding UNUNChecked}" Visibility="{Binding UNUNVisible}">
-          <Behaviors:Interaction.Triggers>
-            <Behaviors:EventTrigger EventName="Checked">
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}"
-                                             CommandParameter="{Binding RelayData.UNUN.Enable}" />
-            </Behaviors:EventTrigger>
-            <Behaviors:EventTrigger EventName="Unchecked">
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}"
-                                             CommandParameter="{Binding Path=RelayData.UNUN.Disable}" />
-            </Behaviors:EventTrigger>
-          </Behaviors:Interaction.Triggers>
-        </ui:AppBarToggleButton>
-        <ui:AppBarToggleButton Label="PSWAP" IsChecked="{Binding PSWAPChecked}" Visibility="{Binding PSWAPVisible}">
-            <Behaviors:Interaction.Triggers>
-                <Behaviors:EventTrigger EventName="Checked">
-                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}"
-                                        CommandParameter="{Binding RelayData.AmpSwap.Enable}" />
-                </Behaviors:EventTrigger>
-                <Behaviors:EventTrigger EventName="Unchecked">
-                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}"
-                                        CommandParameter="{Binding Path=RelayData.AmpSwap.Disable}" />
-                </Behaviors:EventTrigger>
-            </Behaviors:Interaction.Triggers>
-        </ui:AppBarToggleButton>
-      </ui:CommandBar>
+                <ui:CommandBar.Content>
+                    <ui:ItemsRepeater ItemsSource="{Binding Relays}">
+                        <DataTemplate DataType="local:Relay">
+                            <controls:LEDLabel Margin="6,6,0,0" Content="{Binding Label}" IsChecked="{Binding IsOn}" IsConnected="{Binding IsConnected}" FontSize="10"/>
+                        </DataTemplate>
+                        <ui:ItemsRepeater.Layout>
+                            <ui:StackLayout Orientation="Horizontal" />
+                        </ui:ItemsRepeater.Layout>
+                    </ui:ItemsRepeater>
+                </ui:CommandBar.Content>
+            </ui:CommandBar>
     </Grid>
   </ui:NavigationView>
 </Window>

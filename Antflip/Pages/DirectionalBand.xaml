@@ -45,6 +45,7 @@ limitations under the License.
       <RowDefinition Height="1*" />
       <RowDefinition Height="1*" />
       <RowDefinition Height="1*" />
+      <RowDefinition Height="1*" />
     </Grid.RowDefinitions>
     <RadioButton Content="NW" IsChecked="{Binding NorthWest.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
@@ -199,10 +200,50 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <Behaviors:Interaction.Triggers>
-      <Behaviors:EventTrigger EventName="Loaded">
-        <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Load}" />
-      </Behaviors:EventTrigger>
-    </Behaviors:Interaction.Triggers>
-  </Grid>
+        <ToggleButton Grid.Row="3" Grid.Column="0" Content="UNUN" IsChecked="{Binding EnableUNUN.Default, Mode=OneTime}">
+            <Behaviors:Interaction.Triggers>
+                <Behaviors:EventTrigger EventName="Checked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableUNUN}" />
+                </Behaviors:EventTrigger>
+                <Behaviors:EventTrigger EventName="Unchecked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding DisableUNUN}" />
+                </Behaviors:EventTrigger>
+                <Behaviors:EventTrigger EventName="Loaded">
+                    <Behaviors:Interaction.Behaviors>
+                        <Behaviors:ConditionBehavior>
+                            <Behaviors:ConditionalExpression>
+                                <Behaviors:ComparisonCondition LeftOperand="{Binding Path=IsChecked, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ToggleButton}}}" Operator="Equal" RightOperand="True" />
+                            </Behaviors:ConditionalExpression>
+                        </Behaviors:ConditionBehavior>
+                    </Behaviors:Interaction.Behaviors>
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableUNUN}" />
+                </Behaviors:EventTrigger>
+            </Behaviors:Interaction.Triggers>
+        </ToggleButton>
+        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding EnableAmpSwap.Default, Mode=OneTime}">
+            <Behaviors:Interaction.Triggers>
+                <Behaviors:EventTrigger EventName="Checked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+                </Behaviors:EventTrigger>
+                <Behaviors:EventTrigger EventName="Unchecked">
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding DisableAmpSwap}" />
+                </Behaviors:EventTrigger>
+                <Behaviors:EventTrigger EventName="Loaded">
+                    <Behaviors:Interaction.Behaviors>
+                        <Behaviors:ConditionBehavior>
+                            <Behaviors:ConditionalExpression>
+                                <Behaviors:ComparisonCondition LeftOperand="{Binding Path=IsChecked, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ToggleButton}}}" Operator="Equal" RightOperand="True" />
+                            </Behaviors:ConditionalExpression>
+                        </Behaviors:ConditionBehavior>
+                    </Behaviors:Interaction.Behaviors>
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+                </Behaviors:EventTrigger>
+            </Behaviors:Interaction.Triggers>
+        </ToggleButton>
+        <Behaviors:Interaction.Triggers>
+            <Behaviors:EventTrigger EventName="Loaded">
+                <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Load}" />
+            </Behaviors:EventTrigger>
+        </Behaviors:Interaction.Triggers>
+    </Grid>
 </ui:Page>

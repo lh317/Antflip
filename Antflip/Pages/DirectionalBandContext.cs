@@ -35,5 +35,9 @@ namespace Antflip.Pages {
         public RelayActions West => this.data.West;
         public RelayActions NorthWest => this.data.NorthWest;
         public RelayActions Omni => this.data.Omni;
+        public RelayActions EnableUNUN => this.data.EnableUNUN;
+        public RelayActions DisableUNUN => this.data.DisableUNUN;
+        public RelayActions EnableAmpSwap => this.data.EnableAmpSwap;
+        public RelayActions DisableAmpSwap => this.data.DisableAmpSwap;
     }
 }

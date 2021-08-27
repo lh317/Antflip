@@ -9,14 +9,14 @@
         <Setter Property="Background" Value="{DynamicResource RadioButtonBackground}" />
         <Setter Property="Foreground" Value="{DynamicResource RadioButtonForeground}" />
         <Setter Property="BorderBrush" Value="{DynamicResource RadioButtonBorderBrush}" />
-        <Setter Property="Padding" Value="4,6,0,0" />
+        <Setter Property="Padding" Value="4,0,0,0" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
         <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
-        <Setter Property="MinWidth" Value="60" />
+        <Setter Property="MinWidth" Value="40" />
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="False" />
         <Setter Property="Template">
             <Setter.Value>
