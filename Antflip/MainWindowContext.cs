@@ -71,7 +71,7 @@ namespace Antflip
     }
 
     public class WARCMenuItem : MenuItem
-    { 
+    {
         public override Type Page => typeof(WARCBand);
         public override WARCBandData Data { get; }
 
@@ -175,34 +175,6 @@ namespace Antflip
 
         public ICommand ActuateCommand { get; }
 
-        private Visibility _ununVisible = Visibility.Hidden;
-        public Visibility UNUNVisible {
-            get => _ununVisible;
-            set {
-                this.Set(ref _ununVisible, value);
-            }
-        }
-
-        private bool ununChecked = false;
-        public bool UNUNChecked {
-            get => ununChecked;
-            set => this.Set(ref ununChecked, value);
-        }
-
-        private Visibility _pswapVisible = Visibility.Hidden;
-        public Visibility PSWAPVisible {
-            get => _pswapVisible;
-            set {
-                this.Set(ref _pswapVisible, value);
-            }
-        }
-
-        private bool pswapChecked = false;
-        public bool PSWAPChecked {
-            get => pswapChecked;
-            set => this.Set(ref pswapChecked, value);
-        }
-
         private void DoBoardCollectionChanged() {
             if (null != this.usbRelay) {
                 this.usbRelay.Opened -= this.DoRelayOpened;
@@ -239,8 +211,6 @@ namespace Antflip
             foreach(var relay in this.Relays) {
                 relay.IsOn = false;
             }
-            this.UNUNChecked = false;
-            this.PSWAPChecked = false;
             var page = (Page)e.Content;
             if (page.GetType() == this.SettingsPage) {
                 foreach (var (item, label) in this.Relays.Zip(labels)) {
@@ -257,9 +227,6 @@ namespace Antflip
                         item.Label = labels[i];
                     }
                 }
-                var isDirectional = selectedItem?.Page == typeof(Pages.DirectionalBand);
-                this.UNUNVisible = (isDirectional) ? Visibility.Visible : Visibility.Hidden;
-                this.PSWAPVisible = (isDirectional) ? Visibility.Visible : Visibility.Hidden;
                 page.DataContext = this.selectedItem?.MakeContext(this) ?? throw new InvalidOperationException();
             }
         }
