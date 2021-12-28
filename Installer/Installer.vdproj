@@ -198,15 +198,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Antflip"
-        "ProductCode" = "8:{DB831058-C314-422C-870E-A5DCB090E663}"
-        "PackageCode" = "8:{D47C5EBC-FCD0-4671-B231-99B9DC8D44F8}"
+        "ProductCode" = "8:{B234311B-83B9-4EE6-A941-82C7A0F1ED5E}"
+        "PackageCode" = "8:{299BF09A-89BA-4DCF-983B-557036913D1A}"
         "UpgradeCode" = "8:{A52F6333-2C88-4A7F-8FD0-600D0C2CE7D6}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.3.2"
+        "ProductVersion" = "8:1.3.3"
         "Manufacturer" = "8:Antflip"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -826,6 +826,34 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0BC6E8831DCC49A7BCD5FF1880CC83A8"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_28B9A9F9F5E94F0CBC3F9C44BA7DBA9F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:SDKRedistOutputGroup"
+            "OutputProjectGuid" = "8:{9A56C434-3E2A-4EA8-84D3-FB33146EAF8A}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F6D57694BDD747749AF971831FC8ED54"
             {
             "SourcePath" = "8:..\\Antflip\\obj\\Debug\\net5.0-windows10.0.18362.0\\apphost.exe"
