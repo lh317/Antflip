@@ -11,19 +11,45 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+using System.Collections.Generic;
 using System.Windows.Input;
 
 using Antflip.USBRelay;
 
-namespace Antflip.Pages {
-    public class DirectionalBandContext
+namespace Antflip.Pages
+{
+    public class DirectionalBandContext : BindableBase
     {
         private readonly DirectionalBandData data;
+        private bool ununChecked;
+        private bool ununEnabled;
 
-        public DirectionalBandContext(ICommand actuate, DirectionalBandData data)
-            => (this.ActuateCommand, this.data) = (actuate, data);
+        // public DirectionalBandContext(ICommand actuate, DirectionalBandData data)
+        //     => (this.actuate, this.data, this.current) = (actuate, data, null);
+
+        public DirectionalBandContext(ICommand actuate, DirectionalBandData data) {
+            this.data = data;
+            this.UNUNChecked = this.data.EnableUNUN.Default;
+            this.UNUNEnabled = true;
+            this.ActuateCommand = actuate;
+        }
 
         public ICommand ActuateCommand { get; init; }
+        public ICommand BandActuateCommand => new RelayCommand<RelayActions>(a => {
+            bool check = false;
+            bool enabled = true;
+            if (null != a) {
+                var open = new HashSet<int>(a.Open);
+                if (open.Count == 1) {
+                    enabled = false;
+                } else if (open.IsSupersetOf(this.EnableUNUN.Open)) {
+                    check = true;
+                }
+            }
+            this.ActuateCommand.Execute(a);
+            this.UNUNEnabled = enabled;
+            this.UNUNChecked = check;
+        });
 
         public RelayActions Load => this.data.Load;
         public RelayActions North => this.data.North;
@@ -39,5 +65,15 @@ namespace Antflip.Pages {
         public RelayActions DisableUNUN => this.data.DisableUNUN;
         public RelayActions EnableAmpSwap => this.data.EnableAmpSwap;
         public RelayActions DisableAmpSwap => this.data.DisableAmpSwap;
+
+        public bool UNUNChecked {
+            get => this.ununChecked;
+            set => Set(ref this.ununChecked, value);
+        }
+
+        public bool UNUNEnabled {
+            get => this.ununEnabled;
+            set => Set(ref this.ununEnabled, value);
+        }
     }
 }

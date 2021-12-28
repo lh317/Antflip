@@ -68,41 +68,41 @@ namespace Antflip.USBRelay {
         public static RelayData DefaultRelayData => new() {
             Band160M = new DirectionalBandData {
                 North = new RelayActions {
-                    Close = new List<int> {1,2,3,5},
+                    Close = new List<int> {1,2,3,4,5},
                     Open = new List<int> {0},
                     Default = true
                 },
                 NorthEast = new RelayActions {
-                    Close = new List<int> {1,2,3,5},
+                    Close = new List<int> {1,2,3,4,5},
                     Open = new List<int> {0}
                 },
                 East = new RelayActions {
                     Close = new List<int> {1,3,5},
-                    Open = new List<int> {0, 2}
+                    Open = new List<int> {0, 2, 4}
                 },
                 SouthEast = new RelayActions {
-                    Close = new List<int> {0,1,3,5},
+                    Close = new List<int> {0,1,3,4,5},
                     Open = new List<int> {2}
                 },
                 South = new RelayActions {
-                    Close = new List<int> {0,1,3,5},
+                    Close = new List<int> {0,1,3,4,5},
                     Open = new List<int> {2}
                 },
                 SouthWest = new RelayActions {
-                    Close = new List<int> {0,3,5},
-                    Open = new List<int> {1, 2}
+                    Close = new List<int> {0,3, 5},
+                    Open = new List<int> {1, 2, 4}
                 },
                 West = new RelayActions {
-                    Close = new List<int> {0,2,3,5},
+                    Close = new List<int> {0,2,3,4,5},
                     Open = new List<int> {1}
                 },
                 NorthWest = new RelayActions {
-                    Close = new List<int> {2,3,5},
+                    Close = new List<int> {2,3,4, 5},
                     Open = new List<int> {0, 1}
                 },
                 Omni = new RelayActions {
                     Close = new List<int> {3,5},
-                    Open = new List<int> {0, 1, 2}
+                    Open = new List<int> {0, 1, 2, 4}
                 },
                 // Default is not wired up in the UI for this action.
                 DisableAmpSwap = DefaultAmpSwap.Disable,
@@ -116,41 +116,41 @@ namespace Antflip.USBRelay {
             },
             Band80M = new DirectionalBandData {
                 North = new RelayActions {
-                    Close = new List<int> {0,1,2,5},
+                    Close = new List<int> {0,1,2,4,5},
                     Open = new List<int> {3},
                     Default = true
                 },
                 NorthEast = new RelayActions {
-                    Close = new List<int> {0,1,2,5},
+                    Close = new List<int> {0,1,2,4,5},
                     Open = new List<int> {3}
                 },
                 East = new RelayActions {
-                    Close = new List<int> {0,1,5},
+                    Close = new List<int> {0,1,4,5},
                     Open = new List<int> {3, 2}
                 },
                 SouthEast = new RelayActions {
-                    Close = new List<int> {0,1,3,5},
+                    Close = new List<int> {0,1,3,4,5},
                     Open = new List<int> {2}
                 },
                 South = new RelayActions {
-                    Close = new List<int> {0,1,3,5},
+                    Close = new List<int> {0,1,3,4,5},
                     Open = new List<int> {2}
                 },
                 SouthWest = new RelayActions {
-                    Close = new List<int> {0,3,5},
+                    Close = new List<int> {0,3,4,5},
                     Open = new List<int> {1, 2}
                 },
                 West = new RelayActions {
-                    Close = new List<int> {0,2,3,5},
+                    Close = new List<int> {0,2,3,4,5},
                     Open = new List<int> {1}
                 },
                 NorthWest = new RelayActions {
-                    Close = new List<int> {0,2,5},
+                    Close = new List<int> {0,2,4,5},
                     Open = new List<int> {3, 1}
                 },
                 Omni = new RelayActions {
                     Close = new List<int> {0, 5},
-                    Open = new List<int> {3, 1, 2}
+                    Open = new List<int> {3, 1, 2, 4}
                 },
                 // Default is not wired up in the UI for this action.
                 DisableAmpSwap = DefaultAmpSwap.Disable,

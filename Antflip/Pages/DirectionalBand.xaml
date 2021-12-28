@@ -10,20 +10,20 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. 
+limitations under the License.
 -->
-<ui:Page x:Class="Antflip.Pages.DirectionalBand" 
-         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+<ui:Page x:Class="Antflip.Pages.DirectionalBand"
+         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:ui="http://schemas.modernwpf.com/2019" 
-        xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors" 
-        xmlns:local="clr-namespace:Antflip.Controls" 
-        xmlns:page="clr-namespace:Antflip.Pages" 
-        xmlns:ant="clr-namespace:Antflip" 
-        mc:Ignorable="d" 
-        d:DesignHeight="450" d:DesignWidth="800" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:Antflip.Controls"
+        xmlns:page="clr-namespace:Antflip.Pages"
+        xmlns:ant="clr-namespace:Antflip"
+        mc:Ignorable="d"
+        d:DesignHeight="450" d:DesignWidth="800"
         Title="DirectionalBand">
   <ui:Page.Resources>
     <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
@@ -50,7 +50,7 @@ limitations under the License.
     <RadioButton Content="NW" IsChecked="{Binding NorthWest.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding NorthWest}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding NorthWest}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -60,14 +60,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding NorthWest}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding NorthWest}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Column="1" Content="N" IsChecked="{Binding North.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding North}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding North}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -77,14 +77,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding North}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding North}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Column="2" Content="NE" IsChecked="{Binding NorthEast.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding NorthEast}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding NorthEast}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -94,14 +94,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding NorthEast}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding NorthEast}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Row="1" Content="W" IsChecked="{Binding West.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding West}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding West}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -111,14 +111,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding West}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding West}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Row="1" Grid.Column="1" Content="OMNI" IsChecked="{Binding Omni.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Omni}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding Omni}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -128,14 +128,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding Omni}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding Omni}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Row="1" Grid.Column="2" Content="E" IsChecked="{Binding East.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding East}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding East}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -145,14 +145,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding East}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding East}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Row="2" Content="SW" IsChecked="{Binding SouthWest.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding SouthWest}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding SouthWest}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -162,14 +162,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding SouthWest}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding SouthWest}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Row="2" Grid.Column="1" Content="S" IsChecked="{Binding South.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding South}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding South}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -179,14 +179,14 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding South}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding South}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
     <RadioButton Grid.Row="2" Grid.Column="2" Content="SE" IsChecked="{Binding SouthEast.Default, Mode=OneTime}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding SouthEast}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding SouthEast}" />
         </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Loaded">
           <Behaviors:Interaction.Behaviors>
@@ -196,11 +196,11 @@ limitations under the License.
               </Behaviors:ConditionalExpression>
             </Behaviors:ConditionBehavior>
           </Behaviors:Interaction.Behaviors>
-          <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding SouthEast}" />
+          <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding SouthEast}" />
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-        <ToggleButton Grid.Row="3" Grid.Column="0" Content="UNUN" IsChecked="{Binding EnableUNUN.Default, Mode=OneTime}">
+        <ToggleButton Grid.Row="3" Grid.Column="0" Content="UNUN" IsChecked="{Binding UNUNChecked}" IsEnabled="{Binding UNUNEnabled}">
             <Behaviors:Interaction.Triggers>
                 <Behaviors:EventTrigger EventName="Checked">
                     <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableUNUN}" />
