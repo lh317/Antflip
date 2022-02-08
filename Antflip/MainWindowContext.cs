@@ -1,4 +1,4 @@
-// Copyright 2021 lh317
+// Copyright 2021-2022 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ using ModernWpf.Controls;
 
 using Antflip.Pages;
 using Antflip.USBRelay;
+using Antflip.Settings;
+
 namespace Antflip
 {
     public abstract class MenuItem
@@ -157,6 +159,7 @@ namespace Antflip
                 this.boards = new(TEST_BOARDS);
             }
 #endif
+            boards.SortSavedBoardOrder();
             this.boards.CollectionChanged += ((s,e) => this.DoBoardCollectionChanged());
             this.DoBoardCollectionChanged();
         }
@@ -196,6 +199,7 @@ namespace Antflip
             }
             this.usbRelay.Opened += this.DoRelayOpened;
             this.usbRelay.Closed += this.DoRelayClosed;
+            this.boards.SaveBoardOrder();
         }
 
         private void DoRelayOpened(object? source, USBRelayEventData e) {
