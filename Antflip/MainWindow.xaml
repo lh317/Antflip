@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021 lh317
+﻿<!-- Copyright 2021, 2022 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -10,7 +10,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. 
+limitations under the License.
 -->
 <Window x:Class="Antflip.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -32,7 +32,8 @@ limitations under the License.
   <ui:NavigationView x:Name="NavigationView"
                      PaneTitle="Bands"
                      PaneDisplayMode="Top"
-                     MenuItemsSource="{Binding MenuItems}">
+                     MenuItemsSource="{Binding MenuItems}"
+                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
     <ui:NavigationView.MenuItemTemplate>
       <DataTemplate DataType="local:MenuItem">
         <ui:NavigationViewItem Content="{Binding Content}" />

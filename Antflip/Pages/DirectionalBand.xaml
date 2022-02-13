@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021 lh317
+﻿<!-- Copyright 2021-2022 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ limitations under the License.
       <RowDefinition Height="1*" />
       <RowDefinition Height="1*" />
     </Grid.RowDefinitions>
-    <RadioButton Content="NW" IsChecked="{Binding NorthWest.Default, Mode=OneTime}">
+    <RadioButton Content="NW" IsChecked="{Binding NorthWestChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding NorthWest}" />
@@ -64,7 +64,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Column="1" Content="N" IsChecked="{Binding North.Default, Mode=OneTime}">
+    <RadioButton Grid.Column="1" Content="N" IsChecked="{Binding NorthChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding North}" />
@@ -81,7 +81,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Column="2" Content="NE" IsChecked="{Binding NorthEast.Default, Mode=OneTime}">
+    <RadioButton Grid.Column="2" Content="NE" IsChecked="{Binding NorthEastChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding NorthEast}" />
@@ -98,7 +98,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="1" Content="W" IsChecked="{Binding West.Default, Mode=OneTime}">
+    <RadioButton Grid.Row="1" Content="W" IsChecked="{Binding WestChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding West}" />
@@ -115,7 +115,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="1" Grid.Column="1" Content="OMNI" IsChecked="{Binding Omni.Default, Mode=OneTime}">
+    <RadioButton Grid.Row="1" Grid.Column="1" Content="OMNI" IsChecked="{Binding OmniChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding Omni}" />
@@ -132,7 +132,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="1" Grid.Column="2" Content="E" IsChecked="{Binding East.Default, Mode=OneTime}">
+    <RadioButton Grid.Row="1" Grid.Column="2" Content="E" IsChecked="{Binding EastChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding East}" />
@@ -149,7 +149,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="2" Content="SW" IsChecked="{Binding SouthWest.Default, Mode=OneTime}">
+    <RadioButton Grid.Row="2" Content="SW" IsChecked="{Binding SouthWestChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding SouthWest}" />
@@ -166,7 +166,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="2" Grid.Column="1" Content="S" IsChecked="{Binding South.Default, Mode=OneTime}">
+    <RadioButton Grid.Row="2" Grid.Column="1" Content="S" IsChecked="{Binding SouthChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding South}" />
@@ -183,7 +183,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="2" Grid.Column="2" Content="SE" IsChecked="{Binding SouthEast.Default, Mode=OneTime}">
+    <RadioButton Grid.Row="2" Grid.Column="2" Content="SE" IsChecked="{Binding SouthEastChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding SouthEast}" />

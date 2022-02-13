@@ -17,16 +17,18 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Navigation;
 
+using CodeTiger.Threading;
 using ModernWpf.Controls;
 
 using Antflip.Pages;
-using Antflip.USBRelay;
 using Antflip.Settings;
+using Antflip.USBRelay;
 
 namespace Antflip
 {
@@ -53,7 +55,7 @@ namespace Antflip
             => this.Data = data;
 
         public override object MakeContext(MainWindowContext context) {
-            return new DirectionalBandContext(context.ActuateCommand, this.Data);
+            return new DirectionalBandContext(context, this.Data);
         }
     }
 
@@ -88,16 +90,12 @@ namespace Antflip
 
     public class MenuItemToPageConverter : IValueConverter
     {
-        private readonly MainWindowContext context;
-
-        public MenuItemToPageConverter(MainWindowContext context) => this.context = context;
 
         // This method gets called when selecting (navigating) bands and maps the selected MenuItem object
         // to the Page to be displayed for the selected band.
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             if (targetType.Equals(typeof(Page))) {
-                context.selectedItem = (MenuItem)value;
-                return context.selectedItem.Page;
+                return ((MenuItem)value).Page;
             }
             return DependencyProperty.UnsetValue;
         }
@@ -105,6 +103,23 @@ namespace Antflip
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
             throw new NotImplementedException();
         }
+    }
+
+
+    public class ChangeDirectionEventArgs : EventArgs
+    {
+        public Band Band { get; init; }
+        public double Azimuth { get; init; }
+
+        public ChangeDirectionEventArgs(Band band, double azimuth)
+         => (this.Band, this.Azimuth) = (band, azimuth);
+    }
+
+    public class BandChangingEventArgs : EventArgs
+    {
+        public Band Band { get; init; }
+
+        public BandChangingEventArgs(Band band) => this.Band = band;
     }
 
     public sealed class MainWindowContext : BindableBase, IDisposable
@@ -134,11 +149,12 @@ namespace Antflip
         private readonly USBRelayDriver usbDriver = new();
         private readonly ObservableCollection<USBRelayBoard> boards;
         private IUSBRelayControl? usbRelay;
-
-        internal MenuItem? selectedItem = null;
+        private N1MMRotorClient rotorClient = new N1MMRotorClient();
+        private String rotorName = "antflip";
+        private AsyncManualResetEvent contextCreated = new(false);
+        private MenuItem? selectedItem = null;
 
         public MainWindowContext() {
-            this.MenuItemToPage = new(this);
             this.MenuItems = new List<MenuItem>{
                 new DirectionalMenuItem("160M", this.RelayData.Band160M),
                 new DirectionalMenuItem("80M", this.RelayData.Band80M),
@@ -160,8 +176,17 @@ namespace Antflip
             }
 #endif
             boards.SortSavedBoardOrder();
-            this.boards.CollectionChanged += ((s,e) => this.DoBoardCollectionChanged());
+            this.boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.DoBoardCollectionChanged();
+            this.RemoteControlAsync();
+        }
+
+        public event EventHandler<BandChangingEventArgs>? BandChanging;
+        public event EventHandler<ChangeDirectionEventArgs>? ChangeDirection;
+
+        public MenuItem? SelectedItem {
+            get { return this.selectedItem; }
+            set { this.Set(ref this.selectedItem, value); }
         }
 
         public IReadOnlyList<Relay> Relays { get; } = relays;
@@ -174,7 +199,7 @@ namespace Antflip
         [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
         public Type SettingsPage => typeof(Pages.Settings);
 
-        public MenuItemToPageConverter MenuItemToPage { get; }
+        public MenuItemToPageConverter MenuItemToPage { get; } = new MenuItemToPageConverter();
 
         public ICommand ActuateCommand { get; }
 
@@ -210,9 +235,24 @@ namespace Antflip
             this.Relays[e.Index].IsOn = false;
         }
 
+        private async Task RemoteControlAsync() {
+            while (true) {
+                var message = await this.rotorClient.ReceiveAsync();
+                if (message.Name == this.rotorName) {
+                    var bandItem = this.MenuItems[(int)message.Band];
+                    if (bandItem != this.SelectedItem) {
+                        this.BandChanging?.Invoke(this, new(message.Band));
+                        this.SelectedItem = bandItem;
+                        await this.contextCreated.WaitOneAsync();
+                    }
+                    this.ChangeDirection?.Invoke(this, new(message.Band, message.Azimuth));
+                }
+            }
+        }
+
         public void OnNavigated(object sender, NavigationEventArgs e) {
             this.usbDriver.CloseAll();
-            foreach(var relay in this.Relays) {
+            foreach (var relay in this.Relays) {
                 relay.IsOn = false;
             }
             var page = (Page)e.Content;
@@ -232,11 +272,14 @@ namespace Antflip
                     }
                 }
                 page.DataContext = this.selectedItem?.MakeContext(this) ?? throw new InvalidOperationException();
+                this.contextCreated.Set();
+                this.contextCreated.Reset();
             }
         }
 
         public void Dispose() {
             this.usbDriver.Dispose();
+            this.rotorClient.Dispose();
         }
     }
 }
