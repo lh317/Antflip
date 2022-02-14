@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021 lh317
+﻿<!-- Copyright 2021-2022 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -10,7 +10,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. 
+limitations under the License.
 -->
 <ui:Page x:Class="Antflip.Pages.Settings"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -25,7 +25,7 @@ limitations under the License.
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Settings">
     <ScrollViewer>
-        <ui:SimpleStackPanel>
+        <ui:SimpleStackPanel HorizontalAlignment="Left">
             <TextBlock Style="{DynamicResource SubheaderTextBlockStyle}">USB Boards</TextBlock>
             <ui:ListView x:Name="List" DataContext="{Binding}"
                          ItemsSource="{Binding Boards}" HorizontalAlignment="Left"
@@ -96,8 +96,9 @@ limitations under the License.
                         </Grid>
                     </DataTemplate>
                 </ui:ListView.ItemTemplate>
-                
             </ui:ListView>
+            <TextBlock>Rotor Name</TextBlock>
+            <TextBox Text="{Binding RotorName, UpdateSourceTrigger=PropertyChanged}" Width="256" HorizontalAlignment="Left"/>
         </ui:SimpleStackPanel>
     </ScrollViewer>
 </ui:Page>

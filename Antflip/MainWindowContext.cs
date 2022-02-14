@@ -27,7 +27,6 @@ using CodeTiger.Threading;
 using ModernWpf.Controls;
 
 using Antflip.Pages;
-using Antflip.Settings;
 using Antflip.USBRelay;
 
 namespace Antflip
@@ -139,22 +138,18 @@ namespace Antflip
             "SINGLE",
         };
 
-        private static readonly USBRelayBoard[] TEST_BOARDS = new USBRelayBoard[] {
-            new(0, "Board 1", 8),
-            new(1, "Board 2", 8)
-        };
-
         private static readonly IReadOnlyList<Relay> relays = labels.Select(l => new Relay(l)).ToList();
 
         private readonly USBRelayDriver usbDriver = new();
-        private readonly ObservableCollection<USBRelayBoard> boards;
         private IUSBRelayControl? usbRelay;
+        private readonly SettingsContext settings;
         private N1MMRotorClient rotorClient = new N1MMRotorClient();
-        private String rotorName = "antflip";
         private AsyncManualResetEvent contextCreated = new(false);
         private MenuItem? selectedItem = null;
 
         public MainWindowContext() {
+            this.settings = new SettingsContext(usbDriver);
+            this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.MenuItems = new List<MenuItem>{
                 new DirectionalMenuItem("160M", this.RelayData.Band160M),
                 new DirectionalMenuItem("80M", this.RelayData.Band80M),
@@ -169,14 +164,6 @@ namespace Antflip
             this.ActuateCommand = new RelayCommand<RelayActions>(
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
             );
-            this.boards = new(usbDriver);
-#if DEBUG
-            if (usbDriver.Count == 0) {
-                this.boards = new(TEST_BOARDS);
-            }
-#endif
-            boards.SortSavedBoardOrder();
-            this.boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.DoBoardCollectionChanged();
             this.RemoteControlAsync();
         }
@@ -212,10 +199,10 @@ namespace Antflip
             if (usbDriver.Count == 0) {
                 this.usbRelay = new VirtualUSBRelayControl(16);
             } else {
-                this.usbRelay = usbDriver.ControlRelays(this.boards);
+                this.usbRelay = usbDriver.ControlRelays(this.settings.Boards);
             }
 #else
-            this.usbRelay = usbDriver.ControlRelays(this.boards);
+            this.usbRelay = usbDriver.ControlRelays(this.settings.Boards);
 #endif
             var opened = this.usbRelay.GetOpenRelays().Where((o, i) => i < this.Relays.Count).Select((o, i) => (this.Relays[i], o));
             foreach (var (relay, open) in opened) {
@@ -224,7 +211,6 @@ namespace Antflip
             }
             this.usbRelay.Opened += this.DoRelayOpened;
             this.usbRelay.Closed += this.DoRelayClosed;
-            this.boards.SaveBoardOrder();
         }
 
         private void DoRelayOpened(object? source, USBRelayEventData e) {
@@ -238,7 +224,7 @@ namespace Antflip
         private async Task RemoteControlAsync() {
             while (true) {
                 var message = await this.rotorClient.ReceiveAsync();
-                if (message.Name == this.rotorName) {
+                if (message.Name == this.settings.RotorName) {
                     var bandItem = this.MenuItems[(int)message.Band];
                     if (bandItem != this.SelectedItem) {
                         this.BandChanging?.Invoke(this, new(message.Band));
@@ -260,7 +246,7 @@ namespace Antflip
                 foreach (var (item, label) in this.Relays.Zip(labels)) {
                     item.Label = label;
                 }
-                page.DataContext = new SettingsContext(this.usbDriver, this.boards);
+                page.DataContext = this.settings;
             } else {
                 var customLabels = (this.selectedItem?.Data as ICustomLabels)?.Labels;
                 foreach (var (item, i) in this.Relays.Select((value, i) => (value, i))) {

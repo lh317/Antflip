@@ -1,4 +1,4 @@
-// Copyright 2021 lh317
+// Copyright 2021-2022 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,21 +15,43 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 
-using Antflip.USBRelay;
-
 using ModernWpf.Controls;
+
+using Antflip.USBRelay;
+using Antflip.Settings;
 
 using ItemsControl = System.Windows.Controls.ItemsControl;
 
 namespace Antflip.Pages {
     public class SettingsContext : BindableBase {
+        private static readonly USBRelayBoard[] TEST_BOARDS = new USBRelayBoard[] {
+            new(0, "Board 1", 8),
+            new(1, "Board 2", 8)
+        };
 
         private readonly USBRelayDriver usbDriver;
+        private string rotorName = Registry.RotorName;
 
-        public SettingsContext(USBRelayDriver usbDriver, ObservableCollection<USBRelayBoard> boards)
-            => (this.usbDriver, this.Boards) = (usbDriver, boards);
+        public SettingsContext(USBRelayDriver usbDriver) {
+            this.usbDriver = usbDriver;
+            this.Boards = new(usbDriver);
+#if DEBUG
+            if (usbDriver.Count == 0) {
+                this.Boards = new(TEST_BOARDS);
+            }
+#endif
+            this.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
+            this.DoBoardCollectionChanged();
+        }
 
         public ObservableCollection<USBRelayBoard> Boards { get; }
+        public string RotorName {
+            get => this.rotorName;
+            set {
+                this.Set(ref this.rotorName, value);
+                Registry.RotorName = value;
+            }
+        }
 
         private int _selectedIndex = -1;
         public int SelectedIndex {
@@ -81,5 +103,9 @@ namespace Antflip.Pages {
         public ICommand AllCloseCommand => new RelayCommand<object>(
             (_) => this.usbDriver.CloseChannels(this.Boards[this.SelectedIndex])
         );
+
+        private void DoBoardCollectionChanged() {
+            this.Boards.SaveBoardOrder();
+        }
     }
 }

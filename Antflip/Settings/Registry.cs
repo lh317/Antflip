@@ -23,11 +23,30 @@ using System.IO;
 using System;
 
 namespace Antflip.Settings {
-    public static class BoardRegistry {
+    public static class Registry {
+        public static string RotorName {
+            get {
+                try {
+                    using(var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip")) {
+                        return key.GetValue("RotorName") as string ?? "antflip";
+                    }
+                } catch(Exception e) when (e is SecurityException || e is IOException || e is UnauthorizedAccessException) {
+                }
+                return "antflip";
+            }
+            set {
+                try {
+                    using(var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip")) {
+                        key.SetValue("RotorName", value);
+                    }
+                } catch(Exception e) when (e is SecurityException || e is IOException || e is UnauthorizedAccessException) {
+                }
+            }
+        }
         public static void SortSavedBoardOrder(this IList<USBRelayBoard> boards) {
             var map = new Dictionary<string, int>();
             try {
-                using(var key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards")) {
+                using(var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards")) {
                     foreach(var name in key.GetValueNames()) {
                         if (int.TryParse(name, NumberStyles.None, CultureInfo.InvariantCulture, out var index)) {
                             var boardName = key.GetValue(name) as string;
@@ -55,7 +74,7 @@ namespace Antflip.Settings {
 
         public static void SaveBoardOrder(this IEnumerable<USBRelayBoard> boards) {
             try {
-                using (var key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards")) {
+                using (var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards")) {
                     var indexes = boards.Select((board, index) => {
                         var indexStr = index.ToString(CultureInfo.InvariantCulture);
                         key.SetValue(indexStr, board.Name);
