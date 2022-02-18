@@ -222,18 +222,42 @@ namespace Antflip
             this.Relays[e.Index].IsOn = false;
         }
 
+        private bool ChangeBand(Band band) {
+            var bandItem = this.MenuItems[(int)band];
+            if (bandItem != this.SelectedItem) {
+                this.BandChanging?.Invoke(this, new(band));
+                this.SelectedItem = bandItem;
+                return true;
+            }
+            return false;
+        }
         private async Task RemoteControlAsync(CancellationToken token) {
-            using (var rotorClient = new N1MMRotorClient()) {
+            using (var rotorClient = new N1MMRotorClient())
+            using (var n1mmClient = new N1MMUdpClient()) {
+                var rotorTask = rotorClient.ReceiveAsync();
+                var udpTask = n1mmClient.ReceiveAsync();
                 while (true) {
-                    var message = await rotorClient.ReceiveAsync().WaitAsync(token);
-                    if (message.Name == this.settings.RotorName) {
-                        var bandItem = this.MenuItems[(int)message.Band];
-                        if (bandItem != this.SelectedItem) {
-                            this.BandChanging?.Invoke(this, new(message.Band));
-                            this.SelectedItem = bandItem;
-                            await this.contextCreated.WaitOneAsync();
+                    await Task.WhenAny(rotorTask, udpTask).WaitAsync(token);
+                    if (rotorTask.IsCompletedSuccessfully) {
+                        var message = rotorTask.Result;
+                        if (message.Name == this.settings.RotorName) {
+                            if(this.ChangeBand(message.Band)) {
+                                await this.contextCreated.WaitOneAsync();
+                            }
+                            this.ChangeDirection?.Invoke(this, new(message.Band, message.Azimuth));
                         }
-                        this.ChangeDirection?.Invoke(this, new(message.Band, message.Azimuth));
+                    }
+                    if (udpTask.IsCompletedSuccessfully) {
+                        var message = udpTask.Result;
+                        if (message.Radio == Radio.Radio1) {
+                            this.ChangeBand(message.Band);
+                        }
+                    }
+                    if (rotorTask.IsCompleted) {
+                        rotorTask = rotorClient.ReceiveAsync();
+                    }
+                    if (udpTask.IsCompleted) {
+                        udpTask = n1mmClient.ReceiveAsync();
                     }
                 }
             }

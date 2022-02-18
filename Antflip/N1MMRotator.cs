@@ -13,14 +13,20 @@
 // limitations under the License.
 using System;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace Antflip
 {
+    public interface IBand {
+        public Band Band {get;}
+    }
+
     public enum Band
     {
         Band160M,
@@ -49,9 +55,23 @@ namespace Antflip
                 "28.0" => Band.Band10M,
                 _ => throw new FormatException("{s} is not a valid band")
             };
+
+        public static Band FromFrequency(int frequency) =>
+            frequency switch {
+                >= 1_800_000 and <= 2_000_000 => Band.Band160M,
+                >= 3_500_000 and <= 4_000_000 => Band.Band80M,
+                >= 7_000_000 and <= 7_300_000 => Band.Band40M,
+                >= 10_000_000 and <= 10_150_000 => Band.Band30M,
+                >= 14_000_000 and <= 14_350_000 => Band.Band20M,
+                >= 18_000_000 and <= 18_168_000 => Band.Band17M,
+                >= 21_000_000 and <= 21_450_000 => Band.Band15M,
+                >= 24_890_000 and <= 25_000_000 => Band.Band12M,
+                >= 28_000_000 and <= 29_700_000 => Band.Band10M,
+                _ => throw new ArgumentException("{frequency} is not a valid band")
+            };
     }
 
-    public record N1MMRotorMessage(string Name, double Azimuth, double Offset, bool BiDirectional, Band Band)
+    public record N1MMRotorMessage(string Name, double Azimuth, double Offset, bool BiDirectional, Band Band) : IBand
     {
         public static N1MMRotorMessage Parse(byte[] packet) {
             string message = Encoding.UTF8.GetString(packet);
@@ -70,13 +90,16 @@ namespace Antflip
     {
         private UdpClient client;
 
-        public N1MMRotorClient(int port = 12040) => client = new UdpClient(port);
+        public N1MMRotorClient(int port = 12040) {
+            this.client = new UdpClient();
+            //this.client.EnableBroadcast = true;
+            var loopback = IPAddress.Parse("127.0.0.2");
+            client.Client.Bind(new IPEndPoint(loopback, port));
+        }
 
-        public async ValueTask<N1MMRotorMessage> ReceiveAsync() {
-            Debug.WriteLine("UDP listener started");
+        public async Task<N1MMRotorMessage> ReceiveAsync() {
             while (true) {
                 var packet = await this.client.ReceiveAsync();
-                Debug.WriteLine("UDP packet received");
                 try {
                     return N1MMRotorMessage.Parse(packet.Buffer);
                 } catch (Exception e) when (e is ArgumentException || e is FormatException || e is OverflowException || e is XmlException) {
