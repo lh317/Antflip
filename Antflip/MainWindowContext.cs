@@ -143,7 +143,6 @@ namespace Antflip
         private readonly USBRelayDriver usbDriver = new();
         private IUSBRelayControl? usbRelay;
         private readonly SettingsContext settings;
-        private N1MMRotorClient rotorClient = new N1MMRotorClient();
         private AsyncManualResetEvent contextCreated = new(false);
         private MenuItem? selectedItem = null;
 
@@ -222,16 +221,18 @@ namespace Antflip
         }
 
         private async Task RemoteControlAsync() {
-            while (true) {
-                var message = await this.rotorClient.ReceiveAsync();
-                if (message.Name == this.settings.RotorName) {
-                    var bandItem = this.MenuItems[(int)message.Band];
-                    if (bandItem != this.SelectedItem) {
-                        this.BandChanging?.Invoke(this, new(message.Band));
-                        this.SelectedItem = bandItem;
-                        await this.contextCreated.WaitOneAsync();
+            using(var rotorClient = new N1MMRotorClient()) {
+                while (true) {
+                    var message = await rotorClient.ReceiveAsync();
+                    if (message.Name == this.settings.RotorName) {
+                        var bandItem = this.MenuItems[(int)message.Band];
+                        if (bandItem != this.SelectedItem) {
+                            this.BandChanging?.Invoke(this, new(message.Band));
+                            this.SelectedItem = bandItem;
+                            await this.contextCreated.WaitOneAsync();
+                        }
+                        this.ChangeDirection?.Invoke(this, new(message.Band, message.Azimuth));
                     }
-                    this.ChangeDirection?.Invoke(this, new(message.Band, message.Azimuth));
                 }
             }
         }
@@ -265,7 +266,6 @@ namespace Antflip
 
         public void Dispose() {
             this.usbDriver.Dispose();
-            this.rotorClient.Dispose();
         }
     }
 }
