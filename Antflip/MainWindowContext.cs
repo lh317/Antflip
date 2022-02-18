@@ -13,10 +13,10 @@
 // limitations under the License.
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -144,6 +144,8 @@ namespace Antflip
         private IUSBRelayControl? usbRelay;
         private readonly SettingsContext settings;
         private AsyncManualResetEvent contextCreated = new(false);
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private Task remoteLoop;
         private MenuItem? selectedItem = null;
 
         public MainWindowContext() {
@@ -164,7 +166,7 @@ namespace Antflip
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
             );
             this.DoBoardCollectionChanged();
-            this.RemoteControlAsync();
+            this.remoteLoop = this.RemoteControlAsync(cancellationTokenSource.Token);
         }
 
         public event EventHandler<BandChangingEventArgs>? BandChanging;
@@ -220,10 +222,10 @@ namespace Antflip
             this.Relays[e.Index].IsOn = false;
         }
 
-        private async Task RemoteControlAsync() {
-            using(var rotorClient = new N1MMRotorClient()) {
+        private async Task RemoteControlAsync(CancellationToken token) {
+            using (var rotorClient = new N1MMRotorClient()) {
                 while (true) {
-                    var message = await rotorClient.ReceiveAsync();
+                    var message = await rotorClient.ReceiveAsync().WaitAsync(token);
                     if (message.Name == this.settings.RotorName) {
                         var bandItem = this.MenuItems[(int)message.Band];
                         if (bandItem != this.SelectedItem) {
@@ -265,7 +267,9 @@ namespace Antflip
         }
 
         public void Dispose() {
+            this.cancellationTokenSource.Cancel();
             this.usbDriver.Dispose();
+            this.cancellationTokenSource.Dispose();
         }
     }
 }
