@@ -40,13 +40,13 @@ namespace Antflip
             s switch {
                 "1.8" => Band.Band160M,
                 "3.5" => Band.Band80M,
-                "7" => Band.Band40M,
-                "10.1" => Band.Band30M,
-                "14" => Band.Band20M,
-                "18" => Band.Band17M,
-                "21" => Band.Band15M,
-                "24" => Band.Band12M,
-                "28" => Band.Band10M,
+                "7.0" => Band.Band40M,
+                "10.0" => Band.Band30M,
+                "14.0" => Band.Band20M,
+                "18.0" => Band.Band17M,
+                "21.0" => Band.Band15M,
+                "24.0" => Band.Band12M,
+                "28.0" => Band.Band10M,
                 _ => throw new FormatException("{s} is not a valid band")
             };
     }
