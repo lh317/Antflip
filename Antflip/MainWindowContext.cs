@@ -249,7 +249,7 @@ namespace Antflip
                     }
                     if (udpTask.IsCompletedSuccessfully) {
                         var message = udpTask.Result;
-                        if (message.Radio == Radio.Radio1) {
+                        if (message.Radio == this.settings.SelectedRadio) {
                             this.ChangeBand(message.Band);
                         }
                     }

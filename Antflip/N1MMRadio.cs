@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -22,7 +23,9 @@ using System.Xml.Linq;
 namespace Antflip
 {
     public enum Radio {
+        [Display(Name = "Radio 1")]
         Radio1 = 1,
+        [Display(Name = "Radio 2")]
         Radio2 = 2
     }
 

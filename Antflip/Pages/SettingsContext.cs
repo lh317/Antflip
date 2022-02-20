@@ -21,6 +21,9 @@ using Antflip.USBRelay;
 using Antflip.Settings;
 
 using ItemsControl = System.Windows.Controls.ItemsControl;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Antflip.Pages {
     public class SettingsContext : BindableBase {
@@ -31,6 +34,7 @@ namespace Antflip.Pages {
 
         private readonly USBRelayDriver usbDriver;
         private string rotorName = Registry.RotorName;
+        private int radioIndex = 0;
 
         public SettingsContext(USBRelayDriver usbDriver) {
             this.usbDriver = usbDriver;
@@ -42,9 +46,29 @@ namespace Antflip.Pages {
 #endif
             this.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.DoBoardCollectionChanged();
+            var saved = Registry.Radio;
+            this.radioIndex = Array.FindIndex(this.Radios, (x) => x == saved);
         }
 
         public ObservableCollection<USBRelayBoard> Boards { get; }
+
+        public Radio[] Radios { get; } = Enum.GetValues<Radio>();
+
+        public int RadioIndex {
+            get => this.radioIndex;
+            set {
+                this.Set(ref this.radioIndex, value);
+                if (-1 != value) {
+                    Registry.Radio = this.Radios[value];
+                }
+            }
+        }
+
+        public Radio SelectedRadio {
+            get => this.Radios[RadioIndex];
+        }
+
+
         public string RotorName {
             get => this.rotorName;
             set {

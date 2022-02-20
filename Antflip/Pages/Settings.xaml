@@ -21,9 +21,13 @@ limitations under the License.
       xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:local="clr-namespace:Antflip.Pages"
       xmlns:usbrelay="clr-namespace:Antflip.USBRelay"
+      xmlns:antflip="clr-namespace:Antflip"
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Settings">
+      <ui:Page.Resources>
+        <antflip:EnumToDisplayConverter x:Key="radioConverter" />
+      </ui:Page.Resources>
     <ScrollViewer>
         <ui:SimpleStackPanel HorizontalAlignment="Left">
             <TextBlock Style="{DynamicResource SubheaderTextBlockStyle}">USB Boards</TextBlock>
@@ -99,6 +103,13 @@ limitations under the License.
             </ui:ListView>
             <TextBlock>Rotor Name</TextBlock>
             <TextBox Text="{Binding RotorName, UpdateSourceTrigger=PropertyChanged}" Width="256" HorizontalAlignment="Left"/>
+            <ui:RadioButtons ItemsSource="{Binding Radios}" SelectedIndex="{Binding RadioIndex}" MaxColumns="2">
+                <ui:RadioButtons.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource radioConverter}}" />
+                    </DataTemplate>
+                </ui:RadioButtons.ItemTemplate>
+            </ui:RadioButtons>
         </ui:SimpleStackPanel>
     </ScrollViewer>
 </ui:Page>

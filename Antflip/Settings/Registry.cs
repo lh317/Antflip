@@ -22,6 +22,8 @@ using System.Security;
 using System.IO;
 using System;
 
+using Antflip;
+
 namespace Antflip.Settings {
     public static class Registry {
         public static string RotorName {
@@ -38,6 +40,29 @@ namespace Antflip.Settings {
                 try {
                     using(var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip")) {
                         key.SetValue("RotorName", value);
+                    }
+                } catch(Exception e) when (e is SecurityException || e is IOException || e is UnauthorizedAccessException) {
+                }
+            }
+        }
+
+        public static Radio Radio {
+            get {
+
+                try {
+                    using(var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip")) {
+                        var value = key.GetValue("Radio");
+                        if (value != null) {
+                            return (Radio)value;
+                        }
+                    }
+                } catch(Exception e) when (e is SecurityException || e is IOException || e is UnauthorizedAccessException || e is InvalidCastException) {
+                }
+                return Radio.Radio1;
+            } set {
+                try {
+                    using(var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip")) {
+                        key.SetValue("Radio", (int)value);
                     }
                 } catch(Exception e) when (e is SecurityException || e is IOException || e is UnauthorizedAccessException) {
                 }
