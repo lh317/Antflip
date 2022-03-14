@@ -156,6 +156,9 @@ namespace Antflip.Pages
 
         protected void DoChangeDirection(object? source, ChangeDirectionEventArgs? e) {
             switch (e?.Azimuth) {
+                case 360.0:
+                    this.OmniChecked = true;
+                    break;
                 case >= 337.5 or < 22.5:
                     this.NorthChecked = true;
                     break;
