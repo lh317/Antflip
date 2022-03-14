@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Globalization;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -145,12 +147,13 @@ namespace Antflip
         private readonly SettingsContext settings;
         private AsyncManualResetEvent contextCreated = new(false);
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private Task remoteLoop;
+        private Task? remoteLoop = null;
         private MenuItem? selectedItem = null;
 
         public MainWindowContext() {
             this.settings = new SettingsContext(usbDriver);
             this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
+            this.settings.Interface.PropertyChanged += this.DoInterfacePropertyChanged;
             this.MenuItems = new List<MenuItem>{
                 new DirectionalMenuItem("160M", this.RelayData.Band160M),
                 new DirectionalMenuItem("80M", this.RelayData.Band80M),
@@ -166,7 +169,10 @@ namespace Antflip
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
             );
             this.DoBoardCollectionChanged();
-            this.remoteLoop = this.RemoteControlAsync(cancellationTokenSource.Token);
+            var address = this.settings.Interface.Address;
+            if (address != null) {
+                this.remoteLoop = this.RemoteControlAsync(address, cancellationTokenSource.Token);
+            }
         }
 
         public event EventHandler<BandChangingEventArgs>? BandChanging;
@@ -190,6 +196,21 @@ namespace Antflip
         public MenuItemToPageConverter MenuItemToPage { get; } = new MenuItemToPageConverter();
 
         public ICommand ActuateCommand { get; }
+
+        private void DoInterfacePropertyChanged(object? source, PropertyChangedEventArgs e) {
+            if (e.PropertyName == "Address") {
+                var address = this.settings.Interface.Address;
+                if (address != null) {
+                    if (this.remoteLoop != null) {
+                        this.cancellationTokenSource.Cancel();
+                        this.cancellationTokenSource.Dispose();
+                        this.cancellationTokenSource = new CancellationTokenSource();
+                    }
+                    var token = this.cancellationTokenSource.Token;
+                    this.remoteLoop = this.RemoteControlAsync(address, token);
+                }
+            }
+        }
 
         private void DoBoardCollectionChanged() {
             if (null != this.usbRelay) {
@@ -231,9 +252,9 @@ namespace Antflip
             }
             return false;
         }
-        private async Task RemoteControlAsync(CancellationToken token) {
-            using (var rotorClient = new N1MMRotorClient())
-            using (var n1mmClient = new N1MMUdpClient()) {
+        private async Task RemoteControlAsync(IPAddress address, CancellationToken token) {
+            using (var rotorClient = new N1MMRotorClient(address))
+            using (var n1mmClient = new N1MMUdpClient(address)) {
                 var rotorTask = rotorClient.ReceiveAsync();
                 var udpTask = n1mmClient.ReceiveAsync();
                 while (true) {
@@ -241,7 +262,7 @@ namespace Antflip
                     if (rotorTask.IsCompletedSuccessfully) {
                         var message = rotorTask.Result;
                         if (message.Name == this.settings.RotorName) {
-                            if(this.ChangeBand(message.Band)) {
+                            if (this.ChangeBand(message.Band)) {
                                 await this.contextCreated.WaitOneAsync();
                             }
                             this.ChangeDirection?.Invoke(this, new(message.Band, message.Azimuth));

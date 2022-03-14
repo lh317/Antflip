@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -90,11 +88,9 @@ namespace Antflip
     {
         private UdpClient client;
 
-        public N1MMRotorClient(int port = 12040) {
+        public N1MMRotorClient(IPAddress address, int port = 12040) {
             this.client = new UdpClient();
-            //this.client.EnableBroadcast = true;
-            var loopback = IPAddress.Parse("127.0.0.2");
-            client.Client.Bind(new IPEndPoint(loopback, port));
+            client.Client.Bind(new IPEndPoint(address, port));
         }
 
         public async Task<N1MMRotorMessage> ReceiveAsync() {

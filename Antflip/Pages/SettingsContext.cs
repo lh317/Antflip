@@ -11,8 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+using System;
 using System.Collections.ObjectModel;
-using System.Windows;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Security;
 using System.Windows.Input;
 
 using ModernWpf.Controls;
@@ -21,12 +26,98 @@ using Antflip.USBRelay;
 using Antflip.Settings;
 
 using ItemsControl = System.Windows.Controls.ItemsControl;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Antflip.Pages {
-    public class SettingsContext : BindableBase {
+namespace Antflip.Pages
+{
+
+    public class Interface : BindableBase
+    {
+        private static bool IsIpv4ServerAddress(UnicastIPAddressInformation u) {
+            return !u.IsTransient && u.Address.AddressFamily == AddressFamily.InterNetwork;
+        }
+
+        public Interface() {
+            var ifaceId = Registry.Interface;
+            if (ifaceId == null) {
+                this.selectedIndex = GetDefaultInterfaceIndex();
+            } else {
+                this.selectedIndex = Array.FindIndex(Interfaces, i => i.Id == ifaceId);
+                if (this.selectedIndex == -1) {
+                    this.text = ifaceId;
+                }
+            }
+        }
+
+        public NetworkInterface[] Interfaces { get; } =
+            NetworkInterface.GetAllNetworkInterfaces()
+                            .Where(n => n.OperationalStatus == OperationalStatus.Up)
+                            .Where(n => {
+                                var uni = n.GetIPProperties()?.UnicastAddresses;
+                                if (uni != null) {
+                                    return uni.Any(IsIpv4ServerAddress);
+                                }
+                                return false;
+                            })
+                            .ToArray();
+
+        private int GetDefaultInterfaceIndex() {
+            try {
+                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\N1MM Logger+")) {
+                    if (key != null) {
+                        var index = NetworkInterface.LoopbackInterfaceIndex;
+                        var loopId = NetworkInterface.GetAllNetworkInterfaces()[index].Id;
+                        return Array.FindIndex(Interfaces, i => i.Id == loopId);
+                    }
+                }
+            } catch (Exception e) when (e is SecurityException) { }
+            return 0;
+        }
+
+        private int selectedIndex;
+        public int SelectedIndex {
+            get => this.selectedIndex;
+            set {
+                this.Set(ref this.selectedIndex, value);
+                this.OnPropertyChanged("Address");
+                if (-1 != value) {
+                    Registry.Interface = this.Interfaces[value].Id;
+                }
+            }
+        }
+
+        private string text = "";
+        public string Text {
+            get => this.text;
+            set {
+                this.Set(ref this.text, value);
+                if (this.SelectedIndex == -1) {
+                    if (IPAddress.TryParse(value, out var _)) {
+                        Registry.Interface = value;
+                        this.OnPropertyChanged("Address");
+                    }
+                }
+            }
+        }
+
+        public IPAddress? Address {
+            get {
+                if (this.selectedIndex != -1) {
+                    var iface = this.Interfaces[this.SelectedIndex];
+                    if (iface.NetworkInterfaceType == NetworkInterfaceType.Loopback) {
+                        return IPAddress.Parse("127.0.0.2");
+                    }
+                    return iface.GetIPProperties().UnicastAddresses.First(IsIpv4ServerAddress).Address;
+                }
+                if (IPAddress.TryParse(this.Text, out var ret)) {
+                    return ret;
+                }
+                return null;
+            }
+        }
+    }
+
+    public class SettingsContext : BindableBase
+    {
         private static readonly USBRelayBoard[] TEST_BOARDS = new USBRelayBoard[] {
             new(0, "Board 1", 8),
             new(1, "Board 2", 8)
@@ -76,6 +167,8 @@ namespace Antflip.Pages {
                 Registry.RotorName = value;
             }
         }
+
+        public Interface Interface { get; } = new Interface();
 
         private int _selectedIndex = -1;
         public int SelectedIndex {

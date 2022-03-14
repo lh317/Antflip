@@ -47,11 +47,9 @@ namespace Antflip
     {
         private UdpClient client;
 
-        public N1MMUdpClient(int port = 12060) {
+        public N1MMUdpClient(IPAddress address, int port = 12060) {
             this.client = new UdpClient();
-            //this.client.EnableBroadcast = true;
-            var loopback = IPAddress.Parse("127.0.0.2");
-            client.Client.Bind(new IPEndPoint(loopback, port));
+            client.Client.Bind(new IPEndPoint(address, port));
         }
 
         public async Task<N1MMRadioMessage> ReceiveAsync() {
