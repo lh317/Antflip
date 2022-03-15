@@ -292,20 +292,8 @@ namespace Antflip
             }
             var page = (Page)e.Content;
             if (page.GetType() == this.SettingsPage) {
-                foreach (var (item, label) in this.Relays.Zip(labels)) {
-                    item.Label = label;
-                }
                 page.DataContext = this.settings;
             } else {
-                var customLabels = ((this.selectedItem as MenuItem)?.Data as ICustomLabels)?.Labels;
-                foreach (var (item, i) in this.Relays.Select((value, i) => (value, i))) {
-                    string? label = "";
-                    if (customLabels?.TryGetValue(i, out label) == true) {
-                        item.Label = label ?? "";
-                    } else {
-                        item.Label = labels[i];
-                    }
-                }
                 page.DataContext = (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
                 this.contextCreated.Set();
                 this.contextCreated.Reset();

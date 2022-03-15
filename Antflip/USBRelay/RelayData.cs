@@ -1,4 +1,4 @@
-// Copyright 2021 lh317
+// Copyright 2021-2022 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
 // limitations under the License.
 using System.Collections.Generic;
 
-namespace Antflip.USBRelay {
-    public interface ICustomLabels {
-        public IReadOnlyDictionary<int, string> Labels { get; }
-    }
-
-    public record RelayActions {
+namespace Antflip.USBRelay
+{
+    public record RelayActions
+    {
         public IEnumerable<int> Open {get; init;} = new List<int>();
         public IEnumerable<int> Close {get; init;} = new List<int>();
         public bool Default { get; init; } = false;
@@ -188,9 +186,8 @@ namespace Antflip.USBRelay {
         public SwitchedBandData Band10M { get; init; } = new();
     }
 
-    public record DirectionalBandData : ICustomLabels {
-        public IReadOnlyDictionary<int, string> Labels { get; init; } = new Dictionary<int, string>();
-
+    public record DirectionalBandData
+    {
         public RelayActions Load { get; init; } = new();
 
         public RelayActions North {get; init;} = new();
@@ -216,10 +213,8 @@ namespace Antflip.USBRelay {
         public RelayActions Disable {get; init;} = new();
     }
 
-    public record SwitchedBandData : ICustomLabels
+    public record SwitchedBandData
     {
-        public IReadOnlyDictionary<int, string> Labels { get; init; } = new Dictionary<int, string>();
-
         public RelayActions Load { get; init; } = new();
 
         public RelayActions UpperStack {get; init;} = new();
