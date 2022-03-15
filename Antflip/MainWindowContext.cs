@@ -148,7 +148,8 @@ namespace Antflip
         private AsyncManualResetEvent contextCreated = new(false);
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private Task? remoteLoop = null;
-        private MenuItem? selectedItem = null;
+        // Must be an object to support settings page.
+        private object? selectedItem = null;
 
         public MainWindowContext() {
             this.settings = new SettingsContext(usbDriver);
@@ -178,7 +179,7 @@ namespace Antflip
         public event EventHandler<BandChangingEventArgs>? BandChanging;
         public event EventHandler<ChangeDirectionEventArgs>? ChangeDirection;
 
-        public MenuItem? SelectedItem {
+        public object? SelectedItem {
             get { return this.selectedItem; }
             set { this.Set(ref this.selectedItem, value); }
         }
@@ -296,7 +297,7 @@ namespace Antflip
                 }
                 page.DataContext = this.settings;
             } else {
-                var customLabels = (this.selectedItem?.Data as ICustomLabels)?.Labels;
+                var customLabels = ((this.selectedItem as MenuItem)?.Data as ICustomLabels)?.Labels;
                 foreach (var (item, i) in this.Relays.Select((value, i) => (value, i))) {
                     string? label = "";
                     if (customLabels?.TryGetValue(i, out label) == true) {
@@ -305,7 +306,7 @@ namespace Antflip
                         item.Label = labels[i];
                     }
                 }
-                page.DataContext = this.selectedItem?.MakeContext(this) ?? throw new InvalidOperationException();
+                page.DataContext = (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
                 this.contextCreated.Set();
                 this.contextCreated.Reset();
             }
