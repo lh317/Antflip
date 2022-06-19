@@ -26,6 +26,9 @@ limitations under the License.
         Title="Antenna Flip"
         Height="500"
         Width="650">
+  <Window.Resources>
+      <local:MenuItemToPageConverter x:Key="MenuItemToPageConverter" />
+  </Window.Resources>
   <Window.DataContext>
     <local:MainWindowContext/>
   </Window.DataContext>
@@ -48,7 +51,7 @@ limitations under the License.
         <Behaviors:Interaction.Triggers>
           <Behaviors:EventTrigger EventName="SelectionChanged"
                                   SourceObject="{Binding ElementName=NavigationView}">
-            <local:NavigationAction ItemConverter="{Binding MenuItemToPage}"
+            <local:NavigationAction ItemConverter="{StaticResource MenuItemToPageConverter}"
                                     SettingsPageType="{Binding SettingsPage, Mode=OneTime}" />
           </Behaviors:EventTrigger>
           <Behaviors:EventTrigger EventName="Navigated" SourceObject="{Binding ElementName=ContentFrame}">

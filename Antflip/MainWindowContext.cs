@@ -194,7 +194,6 @@ namespace Antflip
         [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
         public Type SettingsPage => typeof(Pages.Settings);
 
-        public MenuItemToPageConverter MenuItemToPage { get; } = new MenuItemToPageConverter();
 
         public ICommand ActuateCommand { get; }
 
