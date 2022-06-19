@@ -22,18 +22,23 @@ using System.Xml.Linq;
 
 namespace Antflip
 {
-    public enum Radio {
+    public enum Radio
+    {
         [Display(Name = "Radio 1")]
         Radio1 = 1,
         [Display(Name = "Radio 2")]
         Radio2 = 2
     }
 
-    public record N1MMRadioMessage(Radio Radio, int Frequency) : IBand {
+    public record N1MMRadioMessage(Radio Radio, int Frequency)
+    {
         public static N1MMRadioMessage Parse(byte[] packet) {
+            // Unclear what the encoding actually is.
             string message = Encoding.UTF8.GetString(packet);
             var xml = XDocument.Parse(message).Root;
+            // Only parsing the items of interest as the message has many fields.
             var radio = int.Parse(xml?.Element("RadioNr")?.Value ?? throw new FormatException("packet has missing/invalid <RadioNr> tag"));
+            // Frequency has units tens of hertz.
             var freq = int.Parse(xml?.Element("Freq")?.Value ?? throw new FormatException("packet has missing/invalid <Freq> tag")) * 10;
             return new N1MMRadioMessage((Radio)radio, freq);
         }
@@ -53,6 +58,9 @@ namespace Antflip
         }
 
         public async Task<N1MMRadioMessage> ReceiveAsync() {
+            // N1MM sends messages other than radio mesages on the main message
+            // port. So silently ignore everything that fails to parse as a
+            // valid rotor message.
             while (true) {
                 var packet = await this.client.ReceiveAsync();
                 try {

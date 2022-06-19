@@ -21,10 +21,6 @@ using System.Xml.Linq;
 
 namespace Antflip
 {
-    public interface IBand {
-        public Band Band {get;}
-    }
-
     public enum Band
     {
         Band160M,
@@ -69,9 +65,10 @@ namespace Antflip
             };
     }
 
-    public record N1MMRotorMessage(string Name, double Azimuth, double Offset, bool BiDirectional, Band Band) : IBand
+    public record N1MMRotorMessage(string Name, double Azimuth, double Offset, bool BiDirectional, Band Band)
     {
         public static N1MMRotorMessage Parse(byte[] packet) {
+            // Unclear what the encoding actually is.
             string message = Encoding.UTF8.GetString(packet);
             var xml = XElement.Parse(message);
             var name = xml.Element("rotor")?.Value ?? throw new ArgumentException("packet has missing/invalid <rotor> tag");
@@ -94,6 +91,9 @@ namespace Antflip
         }
 
         public async Task<N1MMRotorMessage> ReceiveAsync() {
+            // Unfortunately N1MM sends mesages other than rotor messages on the
+            // rotor message port.  So silently ignore anything that fails to
+            // parse as a valid rotor message.
             while (true) {
                 var packet = await this.client.ReceiveAsync();
                 try {

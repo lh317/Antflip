@@ -22,6 +22,8 @@ namespace Antflip
     public class EnumToDisplayConverter : IValueConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+            // null may be passed to top-level bindings especially if the DataContext is not yet bound.
+            // Just return null in kind.
             if (value == null) {
                 return null;
             }
