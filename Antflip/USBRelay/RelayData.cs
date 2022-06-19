@@ -104,7 +104,9 @@ namespace Antflip.USBRelay
                 },
                 // Default is not wired up in the UI for this action.
                 DisableAmpSwap = DefaultAmpSwap.Disable,
-                EnableAmpSwap = DefaultAmpSwap.Enable,
+                EnableAmpSwap = DefaultAmpSwap.Enable with {
+                    Default = true
+                },
                 EnableUNUN = new RelayActions {
                     Open = new List<int> { 4 },
                 },
@@ -152,7 +154,9 @@ namespace Antflip.USBRelay
                 },
                 // Default is not wired up in the UI for this action.
                 DisableAmpSwap = DefaultAmpSwap.Disable,
-                EnableAmpSwap = DefaultAmpSwap.Enable,
+                EnableAmpSwap = DefaultAmpSwap.Enable with {
+                    Default = true
+                },
                 EnableUNUN = new RelayActions {
                     Open = new List<int> { 4 },
                 },
