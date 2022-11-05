@@ -145,8 +145,8 @@ namespace Antflip.USBRelay
                     Open = new List<int> {1}
                 },
                 NorthWest = new RelayActions {
-                    Close = new List<int> {0,2,5},
-                    Open = new List<int> {3, 1, 4}
+                    Close = new List<int> {0,2, 4, 5},
+                    Open = new List<int> {3, 1}
                 },
                 Omni = new RelayActions {
                     Close = new List<int> {0, 5},
