@@ -22,12 +22,11 @@ namespace Antflip.Pages {
         public StackedBandContext(ICommand actuate, SwitchedBandData data)
             => (this.ActuateCommand, this.data) = (actuate, data);
 
-        public ICommand ActuateCommand { get; init; }
+        public ICommand ActuateCommand { get; }
         public RelayActions Load => this.data.Load;
         public RelayActions UpperStack => this.data.UpperStack;
         public RelayActions LowerStack => this.data.LowerStack;
         public RelayActions BothStack => this.data.BothStack;
-        public RelayActions EnableAmpSwap => this.data.EnableAmpSwap;
-        public RelayActions DisableAmpSwap => this.data.DisableAmpSwap;
+        public SwitchData PSWAP => this.data.PSWAP;
     }
 }

@@ -10,7 +10,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. 
+limitations under the License.
 -->
 <ui:Page x:Class="Antflip.Pages.WARCBand"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -62,13 +62,13 @@ limitations under the License.
                 </Behaviors:EventTrigger>
               </Behaviors:Interaction.Triggers>
         </RadioButton>
-        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding EnableAmpSwap.Default, Mode=OneTime}">
+        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding PSWAP.Load, Mode=OneTime}">
             <Behaviors:Interaction.Triggers>
                 <Behaviors:EventTrigger EventName="Checked">
-                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Enable}" />
                 </Behaviors:EventTrigger>
                 <Behaviors:EventTrigger EventName="Unchecked">
-                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding DisableAmpSwap}" />
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Disable}" />
                 </Behaviors:EventTrigger>
                 <Behaviors:EventTrigger EventName="Loaded">
                     <Behaviors:Interaction.Behaviors>
@@ -78,7 +78,7 @@ limitations under the License.
                             </Behaviors:ConditionalExpression>
                         </Behaviors:ConditionBehavior>
                     </Behaviors:Interaction.Behaviors>
-                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+                    <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Enable}" />
                 </Behaviors:EventTrigger>
             </Behaviors:Interaction.Triggers>
         </ToggleButton>

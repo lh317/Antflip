@@ -24,161 +24,6 @@ namespace Antflip.USBRelay
 
     public record RelayData
     {
-        private static readonly SwitchData DefaultAmpSwap = new() {
-            Enable = new RelayActions {
-                Open = new List<int> { 7 },
-            },
-            Disable = new RelayActions {
-                Close = new List<int> { 7 },
-            }
-        };
-
-        private static readonly SwitchedBandData DefaultSwitchedBandData = new() {
-            UpperStack = new RelayActions {
-                Open = new List<int> { 8, 10 },
-                Close = new List<int> { 9 },
-                Default = true
-            },
-            LowerStack = new RelayActions {
-                Open = new List<int> { 9, 10 },
-                Close = new List<int> { 8 },
-            },
-            BothStack = new RelayActions {
-                Close = new List<int> {8, 9, 10 },
-            },
-            // Default is not wired up in the UI for this action.
-            DisableAmpSwap = DefaultAmpSwap.Disable,
-            EnableAmpSwap = DefaultAmpSwap.Enable
-        };
-
-        private static readonly WARCBandData DefaultWARCBandData = new() {
-            WARC = new RelayActions {
-                Open = new List<int> { 6 },
-                Close = new List<int> { 5 },
-                Default = true,
-            },
-            EnableAmpSwap = DefaultAmpSwap.Enable with {
-                Default = true
-            },
-            DisableAmpSwap = DefaultAmpSwap.Disable
-        };
-
-        public static RelayData DefaultRelayData => new() {
-            Band160M = new DirectionalBandData {
-                North = new RelayActions {
-                    Close = new List<int> {1,2,3,4,5},
-                    Open = new List<int> {0},
-                    Default = true
-                },
-                NorthEast = new RelayActions {
-                    Close = new List<int> {1,2,3,4,5},
-                    Open = new List<int> {0}
-                },
-                East = new RelayActions {
-                    Close = new List<int> {1,3,5},
-                    Open = new List<int> {0, 2, 4}
-                },
-                SouthEast = new RelayActions {
-                    Close = new List<int> {0,1,3,4,5},
-                    Open = new List<int> {2}
-                },
-                South = new RelayActions {
-                    Close = new List<int> {0,1,3,4,5},
-                    Open = new List<int> {2}
-                },
-                SouthWest = new RelayActions {
-                    Close = new List<int> {0,3, 5},
-                    Open = new List<int> {1, 2, 4}
-                },
-                West = new RelayActions {
-                    Close = new List<int> {0,2,3,4,5},
-                    Open = new List<int> {1}
-                },
-                NorthWest = new RelayActions {
-                    Close = new List<int> {2,3,4, 5},
-                    Open = new List<int> {0, 1}
-                },
-                Omni = new RelayActions {
-                    Close = new List<int> {3,5},
-                    Open = new List<int> {0, 1, 2, 4}
-                },
-                // Default is not wired up in the UI for this action.
-                DisableAmpSwap = DefaultAmpSwap.Disable,
-                EnableAmpSwap = DefaultAmpSwap.Enable with {
-                    Default = true
-                },
-                EnableUNUN = new RelayActions {
-                    Open = new List<int> { 4 },
-                },
-                DisableUNUN = new RelayActions {
-                    Close = new List<int> { 4 },
-                }
-            },
-            Band80M = new DirectionalBandData {
-                North = new RelayActions {
-                    Close = new List<int> {0,1,2,4,5},
-                    Open = new List<int> {3},
-                    Default = true
-                },
-                NorthEast = new RelayActions {
-                    Close = new List<int> {0,1,2,4,5},
-                    Open = new List<int> {3}
-                },
-                East = new RelayActions {
-                    Close = new List<int> {0,1,4,5},
-                    Open = new List<int> {3, 2}
-                },
-                SouthEast = new RelayActions {
-                    Close = new List<int> {0,1,3,4,5},
-                    Open = new List<int> {2}
-                },
-                South = new RelayActions {
-                    Close = new List<int> {0,1,3,4,5},
-                    Open = new List<int> {2}
-                },
-                SouthWest = new RelayActions {
-                    Close = new List<int> {0,3,4,5},
-                    Open = new List<int> {1, 2}
-                },
-                West = new RelayActions {
-                    Close = new List<int> {0,2,3,4,5},
-                    Open = new List<int> {1}
-                },
-                NorthWest = new RelayActions {
-                    Close = new List<int> {0,2, 4, 5},
-                    Open = new List<int> {3, 1}
-                },
-                Omni = new RelayActions {
-                    Close = new List<int> {0, 5},
-                    Open = new List<int> {3, 1, 2, 4}
-                },
-                // Default is not wired up in the UI for this action.
-                DisableAmpSwap = DefaultAmpSwap.Disable,
-                EnableAmpSwap = DefaultAmpSwap.Enable with {
-                    Default = true
-                },
-                EnableUNUN = new RelayActions {
-                    Open = new List<int> { 4 },
-                },
-                DisableUNUN = new RelayActions {
-                    Close = new List<int> { 4 },
-                }
-            },
-            Band40M = DefaultSwitchedBandData with {
-                Load = new RelayActions {
-                    Open = new List<int> {5},
-
-                }
-            },
-
-            Band30M = DefaultWARCBandData,
-            Band20M = DefaultSwitchedBandData,
-            Band17M = DefaultWARCBandData,
-            Band15M = DefaultSwitchedBandData,
-            Band12M = DefaultWARCBandData,
-            Band10M = DefaultSwitchedBandData
-        };
-
         public DirectionalBandData Band160M {get; init;} = new();
         public DirectionalBandData Band80M {get; init;} = new();
         public SwitchedBandData Band40M { get; init; } = new();
@@ -204,17 +49,16 @@ namespace Antflip.USBRelay
         public RelayActions NorthWest {get; init;} = new();
         public RelayActions Omni {get; init;} = new();
 
-        public RelayActions EnableUNUN { get; init; } = new();
-        public RelayActions DisableUNUN { get; init; } = new();
-
-        public RelayActions EnableAmpSwap { get; init; } = new();
-        public RelayActions DisableAmpSwap { get; init; } = new();
+        public SwitchData PSWAP {get; init;} = new();
+        public SwitchData UNUN {get; init;} = new();
     }
 
-    public record SwitchData {
-        public RelayActions Load { get; init; } = new();
+    public record SwitchData
+    {
         public RelayActions Enable {get; init;} = new();
         public RelayActions Disable {get; init;} = new();
+
+        public bool Load {get; init; }= false;
     }
 
     public record SwitchedBandData
@@ -225,8 +69,7 @@ namespace Antflip.USBRelay
         public RelayActions LowerStack {get; init;} = new();
         public RelayActions BothStack {get; init;} = new();
 
-        public RelayActions EnableAmpSwap {get; init;} = new();
-        public RelayActions DisableAmpSwap {get; init;} = new();
+        public SwitchData PSWAP {get; init;} = new();
     }
 
     public record WARCBandData
@@ -235,8 +78,6 @@ namespace Antflip.USBRelay
 
         public RelayActions WARC { get; init; } = new();
 
-        public RelayActions EnableAmpSwap { get; init; } = new();
-        public RelayActions DisableAmpSwap { get; init; } = new();
-
+        public SwitchData PSWAP {get; init;} = new();
     }
 }

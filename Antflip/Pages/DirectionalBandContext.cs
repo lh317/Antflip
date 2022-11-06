@@ -23,8 +23,8 @@ namespace Antflip.Pages
     public class DirectionalBandContext : BindableBase
     {
         private readonly DirectionalBandData data;
-        private bool ununChecked;
-        private bool ununEnabled;
+        private bool ununChecked = false;
+        private bool ununEnabled = false;
         private bool northChecked;
         private bool northEastChecked;
         private bool eastChecked;
@@ -50,8 +50,6 @@ namespace Antflip.Pages
             this.westChecked = this.data.West.Default;
             this.northWestChecked = this.data.NorthWest.Default;
             this.omniChecked = this.data.Omni.Default;
-            this.UNUNChecked = this.data.EnableUNUN.Default;
-            this.UNUNEnabled = true;
             this.ActuateCommand = context.ActuateCommand;
             WeakEventManager<MainWindowContext, BandChangingEventArgs>.AddHandler(context, "BandChanging", DoBandChanging);
             WeakEventManager<MainWindowContext, ChangeDirectionEventArgs>.AddHandler(context, "ChangeDirection", DoChangeDirection);
@@ -65,7 +63,7 @@ namespace Antflip.Pages
                 var open = new HashSet<int>(a.Open);
                 if (open.Count == 1) {
                     enabled = false;
-                } else if (open.IsSupersetOf(this.EnableUNUN.Open)) {
+                } else if (open.IsSupersetOf(this.UNUN.Enable.Open)) {
                     check = true;
                 }
             }
@@ -84,10 +82,9 @@ namespace Antflip.Pages
         public RelayActions West => this.data.West;
         public RelayActions NorthWest => this.data.NorthWest;
         public RelayActions Omni => this.data.Omni;
-        public RelayActions EnableUNUN => this.data.EnableUNUN;
-        public RelayActions DisableUNUN => this.data.DisableUNUN;
-        public RelayActions EnableAmpSwap => this.data.EnableAmpSwap;
-        public RelayActions DisableAmpSwap => this.data.DisableAmpSwap;
+
+        public SwitchData UNUN => this.data.UNUN;
+        public SwitchData PSWAP => this.data.PSWAP;
 
         public bool NorthChecked {
             get => this.northChecked;

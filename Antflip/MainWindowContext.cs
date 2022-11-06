@@ -27,6 +27,7 @@ using System.Windows.Navigation;
 
 using CodeTiger.Threading;
 using ModernWpf.Controls;
+using Tomlyn;
 
 using Antflip.Pages;
 using Antflip.USBRelay;
@@ -125,23 +126,7 @@ namespace Antflip
 
     public sealed class MainWindowContext : BindableBase, IDisposable
     {
-
-        private static readonly string[] labels = new string[] {
-            "160N",
-            "WEST",
-            "SOUTH",
-            "80N",
-            "UNUN",
-            "40M",
-            "WARC",
-            "PSWAP",
-            "UPPER",
-            "LOWER",
-            "SINGLE",
-        };
-
-        private static readonly IReadOnlyList<Relay> relays = labels.Select(l => new Relay(l)).ToList();
-
+        private TomlModel model = Toml.ToModel<TomlModel>(TomlModel.DEFAULT);
         private readonly USBRelayDriver usbDriver = new();
         private IUSBRelayControl? usbRelay;
         private readonly SettingsContext settings;
@@ -152,6 +137,8 @@ namespace Antflip
         private object? selectedItem = null;
 
         public MainWindowContext() {
+            this.Relays = model.Relays.Select(l => new Relay(l)).ToList();
+            this.RelayData = model.ToRelayData();
             this.settings = new SettingsContext(usbDriver);
             this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.settings.Interface.PropertyChanged += this.DoInterfacePropertyChanged;
@@ -184,10 +171,10 @@ namespace Antflip
             set { this.Set(ref this.selectedItem, value); }
         }
 
-        public IReadOnlyList<Relay> Relays { get; } = relays;
+        public IReadOnlyList<Relay> Relays { get; }
 
         [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
-        public RelayData RelayData => RelayData.DefaultRelayData;
+        public RelayData RelayData { get; }
 
         public IReadOnlyList<MenuItem> MenuItems { get; }
 

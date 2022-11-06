@@ -96,13 +96,13 @@ limitations under the License.
             </Behaviors:EventTrigger>
           </Behaviors:Interaction.Triggers>
         </RadioButton>
-        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding EnableAmpSwap.Default, Mode=OneTime}">
+        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding PSWAP.Load, Mode=OneTime}">
             <Behaviors:Interaction.Triggers>
             <Behaviors:EventTrigger EventName="Checked">
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Enable}" />
             </Behaviors:EventTrigger>
             <Behaviors:EventTrigger EventName="Unchecked">
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding DisableAmpSwap}" />
+              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Disable}" />
             </Behaviors:EventTrigger>
             <Behaviors:EventTrigger EventName="Loaded">
               <Behaviors:Interaction.Behaviors>
@@ -112,19 +112,9 @@ limitations under the License.
                   </Behaviors:ConditionalExpression>
                 </Behaviors:ConditionBehavior>
               </Behaviors:Interaction.Behaviors>
-              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding EnableAmpSwap}" />
+              <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Enable}" />
             </Behaviors:EventTrigger>
-            <Behaviors:EventTrigger EventName="Unloaded">
-                <Behaviors:Interaction.Behaviors>
-                  <Behaviors:ConditionBehavior>
-                    <Behaviors:ConditionalExpression>
-                      <Behaviors:ComparisonCondition LeftOperand="{Binding Path=IsChecked, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ToggleButton}}}" Operator="Equal" RightOperand="True" />
-                    </Behaviors:ConditionalExpression>
-                  </Behaviors:ConditionBehavior>
-                </Behaviors:Interaction.Behaviors>
-                <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding DisableAmpSwap}" />
-              </Behaviors:EventTrigger>
-          </Behaviors:Interaction.Triggers>
+            </Behaviors:Interaction.Triggers>
         </ToggleButton>
         <Behaviors:Interaction.Triggers>
           <Behaviors:EventTrigger EventName="Loaded">
