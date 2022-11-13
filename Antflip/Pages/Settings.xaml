@@ -30,6 +30,18 @@ limitations under the License.
       </ui:Page.Resources>
     <ScrollViewer>
         <ui:SimpleStackPanel HorizontalAlignment="Left">
+            <TextBlock Style="{DynamicResource SubheaderTextBlockStyle}"> Config</TextBlock>
+            <ui:SimpleStackPanel Orientation="Horizontal">
+                <ComboBox ItemsSource="{Binding ConfigSourceNames}" IsEditable="False" SelectedIndex="{Binding ConfigIndex}" Margin="0,0,20,0">
+                    <Behaviors:Interaction.Triggers>
+                        <Behaviors:EventTrigger EventName="DropDownClosed">
+                            <Behaviors:InvokeCommandAction
+                                            Command="{Binding ConfigDropDownClosedCommand}" />
+                        </Behaviors:EventTrigger>
+                    </Behaviors:Interaction.Triggers>
+                </ComboBox>
+                <Button Content="Browse" Command="{Binding BrowseCommand}" />
+            </ui:SimpleStackPanel>
             <TextBlock Style="{DynamicResource SubheaderTextBlockStyle}">USB Boards</TextBlock>
             <ui:ListView x:Name="List" DataContext="{Binding}"
                          ItemsSource="{Binding Boards}" HorizontalAlignment="Left"

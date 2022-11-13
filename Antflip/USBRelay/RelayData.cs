@@ -24,6 +24,7 @@ namespace Antflip.USBRelay
 
     public record RelayData
     {
+        public IReadOnlyList<string> Relays {get; init;} = new List<string>();
         public DirectionalBandData Band160M {get; init;} = new();
         public DirectionalBandData Band80M {get; init;} = new();
         public SwitchedBandData Band40M { get; init; } = new();

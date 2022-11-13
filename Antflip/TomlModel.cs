@@ -17,7 +17,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.Serialization;
 
-using Tomlyn.Model;
+using Tomlyn;
 
 using Antflip.USBRelay;
 using System;
@@ -243,11 +243,13 @@ start = 'north'
 [40m]
 load = ['40M']
 ";
-        public string[] Relays { get; set; } = new string[0];
+        public static readonly Lazy<RelayData> DefaultRelayData = new Lazy<RelayData>(
+            () => Toml.ToModel<TomlModel>(DEFAULT).ToRelayData()
+        );
 
+        public string[] Relays { get; set; } = new string[0];
         public SwitchedBandModel Switched {get; set;} = new();
         public WARCBandModel Warc{ get; set;} = new();
-
         [DataMember(Name = "160m")]
         public DirectionalBandModel Band160M { get; set; } = new();
         [DataMember(Name = "80m")]
@@ -302,6 +304,7 @@ load = ['40M']
             this.Warc.WARC ??= new string[0];
             this.Warc.Load ??= new string[0];
             return new RelayData {
+                Relays = this.Relays.ToList(),
                 Band160M = this.Band160M.ToBandData(relays, pswap, unun),
                 Band80M = this.Band80M.ToBandData(relays, pswap, unun) ,
                 Band40M = this.Band40M.ToBandData(this.Switched, relays, pswap, unun),

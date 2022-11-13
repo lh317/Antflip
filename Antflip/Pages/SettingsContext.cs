@@ -12,15 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security;
+using System.Windows;
 using System.Windows.Input;
 
 using ModernWpf.Controls;
+using Tomlyn;
 
 using Antflip.USBRelay;
 using Antflip.Settings;
@@ -116,6 +122,14 @@ namespace Antflip.Pages
         }
     }
 
+    public enum ConfigSource
+    {
+        [Display(Name="Built In")]
+        BuiltIn = 1,
+        [Display(Name="File")]
+        File = 2
+    }
+
     public class SettingsContext : BindableBase
     {
         private static readonly USBRelayBoard[] TEST_BOARDS = new USBRelayBoard[] {
@@ -124,8 +138,10 @@ namespace Antflip.Pages
         };
 
         private readonly USBRelayDriver usbDriver;
+        private int configIndex;
+        private RelayData relayData;
         private string rotorName = Registry.RotorName;
-        private int radioIndex = 0;
+        private int radioIndex;
 
         public SettingsContext(USBRelayDriver usbDriver) {
             this.usbDriver = usbDriver;
@@ -137,11 +153,69 @@ namespace Antflip.Pages
 #endif
             this.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.DoBoardCollectionChanged();
-            var saved = Registry.Radio;
-            this.radioIndex = Array.FindIndex(this.Radios, (x) => x == saved);
+            this.configIndex = Array.IndexOf(Enum.GetValues<ConfigSource>(), Registry.ConfigSource);
+            try {
+                this.relayData = Toml.ToModel<TomlModel>(Registry.Config).ToRelayData();
+            } catch(Exception e) when (e is TomlException || e is KeyNotFoundException) {
+                this.relayData = TomlModel.DefaultRelayData.Value;
+            }
+            this.radioIndex = Array.IndexOf(this.Radios, Registry.Radio);
+            var converter = new EnumToDisplayConverter();
+            this.ConfigSourceNames = Enum.GetValues<ConfigSource>().Select(
+                (v) => (string)converter.Convert(v, typeof(string), null, CultureInfo.InvariantCulture)!
+            ).ToArray();
         }
 
         public ObservableCollection<USBRelayBoard> Boards { get; }
+
+        public string[] ConfigSourceNames {get;}
+
+        public int ConfigIndex {
+            get => this.configIndex;
+            set => this.Set(ref this.configIndex, value);
+        }
+
+        public RelayData RelayData {
+            get => this.relayData;
+            set => this.Set(ref this.relayData, value);
+        }
+
+        // Use DropDownClosed event as it indicates the user made a selection.
+        // SelectionChanged fires even when code changes the selected value.
+        public RelayCommand<object> ConfigDropDownClosedCommand => new(
+            (_) => {
+                if (-1 != this.configIndex) {
+                    var source = Enum.GetValues<ConfigSource>()[this.configIndex];
+                    Registry.ConfigSource = source;
+                    var model = Registry.Config;
+                    try {
+                        this.RelayData = Toml.ToModel<TomlModel>(model).ToRelayData();
+                    } catch(Exception e) when (e is TomlException || e is KeyNotFoundException) {}
+                }
+            }
+        );
+
+        public RelayCommand<object> BrowseCommand => new(
+            (_) => {
+                var dialog = new Microsoft.Win32.OpenFileDialog() {
+                    Filter = "TOML Files (*.toml)|*.toml"
+                };
+                var result = dialog.ShowDialog();
+                if (result == true) {
+                    var content = File.ReadAllText(dialog.FileName);
+                    try {
+                        this.RelayData = Toml.ToModel<TomlModel>(content).ToRelayData();
+                        Registry.Config = content;
+                        this.ConfigIndex = Array.IndexOf(Enum.GetValues<ConfigSource>(), ConfigSource.File);
+                        Registry.ConfigSource = ConfigSource.File;
+                    } catch(TomlException e) {
+                        MessageBox.Show(e.Diagnostics.ToString());
+                    } catch(KeyNotFoundException e) {
+                        MessageBox.Show(e.Message);
+                    }
+                }
+            }
+        );
 
         public Radio[] Radios { get; } = Enum.GetValues<Radio>();
 

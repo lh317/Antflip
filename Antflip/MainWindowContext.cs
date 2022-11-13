@@ -126,10 +126,11 @@ namespace Antflip
 
     public sealed class MainWindowContext : BindableBase, IDisposable
     {
-        private TomlModel model = Toml.ToModel<TomlModel>(TomlModel.DEFAULT);
         private readonly USBRelayDriver usbDriver = new();
         private IUSBRelayControl? usbRelay;
         private readonly SettingsContext settings;
+        private IReadOnlyList<Relay> relays = null!;
+        private IReadOnlyList<MenuItem> menuItems = null!;
         private AsyncManualResetEvent contextCreated = new(false);
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private Task? remoteLoop = null;
@@ -137,22 +138,11 @@ namespace Antflip
         private object? selectedItem = null;
 
         public MainWindowContext() {
-            this.Relays = model.Relays.Select(l => new Relay(l)).ToList();
-            this.RelayData = model.ToRelayData();
             this.settings = new SettingsContext(usbDriver);
+            this.settings.PropertyChanged += this.DoConfigPropertyChanged;
             this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.settings.Interface.PropertyChanged += this.DoInterfacePropertyChanged;
-            this.MenuItems = new List<MenuItem>{
-                new DirectionalMenuItem("160M", this.RelayData.Band160M),
-                new DirectionalMenuItem("80M", this.RelayData.Band80M),
-                new SwitchedMenuItem("40M", this.RelayData.Band40M),
-                new WARCMenuItem("30M", this.RelayData.Band30M),
-                new SwitchedMenuItem("20M", this.RelayData.Band20M),
-                new WARCMenuItem("17M", this.RelayData.Band17M),
-                new SwitchedMenuItem("15M", this.RelayData.Band15M),
-                new WARCMenuItem("12M", this.RelayData.Band12M),
-                new SwitchedMenuItem("10M", this.RelayData.Band10M)
-            };
+            DoConfigPropertyChanged(this, new PropertyChangedEventArgs("RelayData"));
             this.ActuateCommand = new RelayCommand<RelayActions>(
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
             );
@@ -171,18 +161,41 @@ namespace Antflip
             set { this.Set(ref this.selectedItem, value); }
         }
 
-        public IReadOnlyList<Relay> Relays { get; }
+        public IReadOnlyList<Relay> Relays {
+            get => this.relays;
+            set => this.Set(ref this.relays, value);
+        }
 
-        [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
-        public RelayData RelayData { get; }
-
-        public IReadOnlyList<MenuItem> MenuItems { get; }
+        public IReadOnlyList<MenuItem> MenuItems {
+            get => this.menuItems;
+            set => this.Set(ref this.menuItems, value);
+        }
 
         [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
         public Type SettingsPage => typeof(Pages.Settings);
 
 
         public ICommand ActuateCommand { get; }
+
+
+        private void DoConfigPropertyChanged(object? source, PropertyChangedEventArgs e) {
+            if (e.PropertyName == "RelayData") {
+                var relayData = this.settings.RelayData;
+                this.Relays = relayData.Relays.Select(l => new Relay(l)).ToList();
+                this.MenuItems = new List<MenuItem>{
+                    new DirectionalMenuItem("160M", relayData.Band160M),
+                    new DirectionalMenuItem("80M", relayData.Band80M),
+                    new SwitchedMenuItem("40M", relayData.Band40M),
+                    new WARCMenuItem("30M", relayData.Band30M),
+                    new SwitchedMenuItem("20M", relayData.Band20M),
+                    new WARCMenuItem("17M", relayData.Band17M),
+                    new SwitchedMenuItem("15M", relayData.Band15M),
+                    new WARCMenuItem("12M", relayData.Band12M),
+                    new SwitchedMenuItem("10M", relayData.Band10M)
+                };
+                DoBoardCollectionChanged();
+            }
+        }
 
         private void DoInterfacePropertyChanged(object? source, PropertyChangedEventArgs e) {
             if (e.PropertyName == "Address") {
