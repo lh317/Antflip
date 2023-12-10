@@ -1,4 +1,4 @@
-// Copyright 2022 lh317
+// Copyright 2022-2023 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -87,6 +87,16 @@ namespace Antflip.Settings
                     return;
                 }
                 Set("Interface", value);
+            }
+        }
+
+        public static string? K3ComPort {
+            get => Get<string>("K3ComPort", null);
+            set {
+                if (value == null) {
+                    return;
+                }
+                Set("K3ComPort", value);
             }
         }
 

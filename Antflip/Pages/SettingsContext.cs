@@ -1,4 +1,4 @@
-// Copyright 2021-2022 lh317
+// Copyright 2021-2023 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -32,11 +33,28 @@ using Antflip.USBRelay;
 using Antflip.Settings;
 
 using ItemsControl = System.Windows.Controls.ItemsControl;
+using System.Threading;
 
 namespace Antflip.Pages
 {
 
-    public class Interface : BindableBase
+    public class ComboBoxContext : BindableBase
+    {
+        protected int selectedIndex = -1;
+        public virtual int SelectedIndex {
+            get => this.selectedIndex;
+            set => this.Set(ref this.selectedIndex, value);
+        }
+
+        protected string text = "";
+        public virtual string Text {
+            get => this.text;
+            set => this.Set(ref this.text, value);
+        }
+
+    }
+
+    public class Interface : ComboBoxContext
     {
         private static bool IsIpv4ServerAddress(UnicastIPAddressInformation u) {
             return !u.IsTransient && u.Address.AddressFamily == AddressFamily.InterNetwork;
@@ -79,11 +97,10 @@ namespace Antflip.Pages
             return 0;
         }
 
-        private int selectedIndex;
-        public int SelectedIndex {
-            get => this.selectedIndex;
+        public override int SelectedIndex {
+            get => base.SelectedIndex;
             set {
-                this.Set(ref this.selectedIndex, value);
+                base.SelectedIndex = value;
                 this.OnPropertyChanged("Address");
                 if (-1 != value) {
                     Registry.Interface = this.Interfaces[value].Id;
@@ -91,11 +108,10 @@ namespace Antflip.Pages
             }
         }
 
-        private string text = "";
-        public string Text {
-            get => this.text;
+        public override string Text {
+            get => base.Text;
             set {
-                this.Set(ref this.text, value);
+                base.Text = value;
                 if (this.SelectedIndex == -1) {
                     if (IPAddress.TryParse(value, out var _)) {
                         Registry.Interface = value;
@@ -118,6 +134,41 @@ namespace Antflip.Pages
                     return ret;
                 }
                 return null;
+            }
+        }
+    }
+
+    public class ComPort : ComboBoxContext
+    {
+        public ComPort() {
+            var portName = Registry.K3ComPort;
+            if (portName == null) {
+                this.selectedIndex = -1;
+            } else {
+                this.selectedIndex = Array.FindIndex(ComPorts, p => p == portName);
+                this.text = portName;
+            }
+        }
+
+        public String[] ComPorts { get; } = SerialPort.GetPortNames();
+
+        public override int SelectedIndex {
+            get => base.SelectedIndex;
+            set {
+                base.SelectedIndex = value;
+                if (-1 != value) {
+                    Registry.K3ComPort = this.ComPorts[value];
+                }
+            }
+        }
+
+        public override string Text {
+            get => base.Text;
+            set {
+                base.Text = value;
+                if (-1 == this.SelectedIndex) {
+                    Registry.K3ComPort = value;
+                }
             }
         }
     }
@@ -243,6 +294,8 @@ namespace Antflip.Pages
         }
 
         public Interface Interface { get; } = new Interface();
+
+        public ComPort ComPort { get; } = new ComPort();
 
         private int _selectedIndex = -1;
         public int SelectedIndex {
