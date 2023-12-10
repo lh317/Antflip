@@ -1,4 +1,4 @@
-// Copyright 2022 lh317
+// Copyright 2023 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ namespace Antflip
             }
         }
 
-        public DirectionalBandData ToBandData(IDictionary<string, int> relays, SwitchData pswap, SwitchData unun) {
+        public DirectionalBandData ToBandData(Band band, IDictionary<string, int> relays, SwitchData pswap, SwitchData unun) {
             var north = (from r in this.North select relays[r]).ToList();
             var northEast = (from r in this.Northeast select relays[r]).ToList();
             var east = (from r in this.East select relays[r]).ToList();
@@ -68,6 +68,7 @@ namespace Antflip
                 northEast, east, southEast, south, southWest, west, northWest, omni
             );
             return new() {
+                Band = band,
                 North = new RelayActions() {
                     Open = north,
                     Close = all.Except(north).ToList(),
@@ -305,8 +306,8 @@ load = ['40M']
             this.Warc.Load ??= new string[0];
             return new RelayData {
                 Relays = this.Relays.ToList(),
-                Band160M = this.Band160M.ToBandData(relays, pswap, unun),
-                Band80M = this.Band80M.ToBandData(relays, pswap, unun) ,
+                Band160M = this.Band160M.ToBandData(Band.Band160M, relays, pswap, unun),
+                Band80M = this.Band80M.ToBandData(Band.Band80M, relays, pswap, unun) ,
                 Band40M = this.Band40M.ToBandData(this.Switched, relays, pswap, unun),
                 Band30M = this.Band30M.ToBandData(this.Warc, relays, pswap, unun),
                 Band20M = this.Band20M.ToBandData(this.Switched, relays, pswap, unun),

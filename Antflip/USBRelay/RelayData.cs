@@ -1,4 +1,4 @@
-// Copyright 2021-2022 lh317
+// Copyright 2021-2023 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ namespace Antflip.USBRelay
 
     public record DirectionalBandData
     {
+        public Band Band { get; init; }
+
         public RelayActions Load { get; init; } = new();
 
         public RelayActions North {get; init;} = new();

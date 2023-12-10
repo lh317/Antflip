@@ -1,4 +1,4 @@
-// Copyright 2021-2022 lh317
+// Copyright 2021-2023 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -107,23 +107,6 @@ namespace Antflip
         }
     }
 
-
-    public class ChangeDirectionEventArgs : EventArgs
-    {
-        public Band Band { get; init; }
-        public double Azimuth { get; init; }
-
-        public ChangeDirectionEventArgs(Band band, double azimuth)
-         => (this.Band, this.Azimuth) = (band, azimuth);
-    }
-
-    public class BandChangingEventArgs : EventArgs
-    {
-        public Band Band { get; init; }
-
-        public BandChangingEventArgs(Band band) => this.Band = band;
-    }
-
     public sealed class MainWindowContext : BindableBase, IDisposable
     {
         private readonly USBRelayDriver usbDriver = new();
@@ -131,9 +114,6 @@ namespace Antflip
         private readonly SettingsContext settings;
         private IReadOnlyList<Relay> relays = null!;
         private IReadOnlyList<MenuItem> menuItems = null!;
-        private AsyncManualResetEvent contextCreated = new(false);
-        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private Task? remoteLoop = null;
         // Must be an object to support settings page.
         private object? selectedItem = null;
 
@@ -147,14 +127,13 @@ namespace Antflip
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
             );
             this.DoBoardCollectionChanged();
+            this.RemoteControl = new N1MMRemoteControl(this.settings.RotorName, this.settings.SelectedRadio);
+            this.RemoteControl.BandChanged += this.DoBandChanged;
             var address = this.settings.Interface.Address;
             if (address != null) {
-                this.remoteLoop = this.RemoteControlAsync(address, cancellationTokenSource.Token);
+                this.RemoteControl.Restart(address);
             }
         }
-
-        public event EventHandler<BandChangingEventArgs>? BandChanging;
-        public event EventHandler<ChangeDirectionEventArgs>? ChangeDirection;
 
         public object? SelectedItem {
             get { return this.selectedItem; }
@@ -177,8 +156,15 @@ namespace Antflip
 
         public ICommand ActuateCommand { get; }
 
+        public N1MMRemoteControl RemoteControl {get; init;}
 
         private void DoConfigPropertyChanged(object? source, PropertyChangedEventArgs e) {
+            if (e.PropertyName == "RotorName") {
+                this.RemoteControl.RotorName = this.settings.RotorName;
+            }
+            if (e.PropertyName == "RadioIndex") {
+                this.RemoteControl.Radio = this.settings.SelectedRadio;
+            }
             if (e.PropertyName == "RelayData") {
                 var relayData = this.settings.RelayData;
                 this.Relays = relayData.Relays.Select(l => new Relay(l)).ToList();
@@ -201,13 +187,7 @@ namespace Antflip
             if (e.PropertyName == "Address") {
                 var address = this.settings.Interface.Address;
                 if (address != null) {
-                    if (this.remoteLoop != null) {
-                        this.cancellationTokenSource.Cancel();
-                        this.cancellationTokenSource.Dispose();
-                        this.cancellationTokenSource = new CancellationTokenSource();
-                    }
-                    var token = this.cancellationTokenSource.Token;
-                    this.remoteLoop = this.RemoteControlAsync(address, token);
+                    this.RemoteControl.Restart(address);
                 }
             }
         }
@@ -243,44 +223,12 @@ namespace Antflip
             this.Relays[e.Index].IsOn = false;
         }
 
-        private bool ChangeBand(Band band) {
-            var bandItem = this.MenuItems[(int)band];
+        private void DoBandChanged(object? source, BandChangedEventArgs e) {
+            var bandItem = this.MenuItems[(int)e.Band];
             if (bandItem != this.SelectedItem) {
-                this.BandChanging?.Invoke(this, new(band));
                 this.SelectedItem = bandItem;
-                return true;
-            }
-            return false;
-        }
-        private async Task RemoteControlAsync(IPAddress address, CancellationToken token) {
-            using (var rotorClient = new N1MMRotorClient(address))
-            using (var n1mmClient = new N1MMUdpClient(address)) {
-                var rotorTask = rotorClient.ReceiveAsync();
-                var udpTask = n1mmClient.ReceiveAsync();
-                while (true) {
-                    await Task.WhenAny(rotorTask, udpTask).WaitAsync(token);
-                    if (rotorTask.IsCompletedSuccessfully) {
-                        var message = rotorTask.Result;
-                        if (message.Name == this.settings.RotorName) {
-                            if (this.ChangeBand(message.Band)) {
-                                await this.contextCreated.WaitOneAsync();
-                            }
-                            this.ChangeDirection?.Invoke(this, new(message.Band, message.Azimuth));
-                        }
-                    }
-                    if (udpTask.IsCompletedSuccessfully) {
-                        var message = udpTask.Result;
-                        if (message.Radio == this.settings.SelectedRadio) {
-                            this.ChangeBand(message.Band);
-                        }
-                    }
-                    if (rotorTask.IsCompleted) {
-                        rotorTask = rotorClient.ReceiveAsync();
-                    }
-                    if (udpTask.IsCompleted) {
-                        udpTask = n1mmClient.ReceiveAsync();
-                    }
-                }
+            } else {
+                this.RemoteControl.BandChangeDone.Set();
             }
         }
 
@@ -294,15 +242,13 @@ namespace Antflip
                 page.DataContext = this.settings;
             } else {
                 page.DataContext = (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
-                this.contextCreated.Set();
-                this.contextCreated.Reset();
+                this.RemoteControl.BandChangeDone.Set();
             }
         }
 
         public void Dispose() {
-            this.cancellationTokenSource.Cancel();
+            this.RemoteControl.Dispose();
             this.usbDriver.Dispose();
-            this.cancellationTokenSource.Dispose();
         }
     }
 }

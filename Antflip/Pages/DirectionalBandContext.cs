@@ -1,4 +1,4 @@
-// Copyright 2021-2022 lh317
+// Copyright 2021-2023 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,10 +35,6 @@ namespace Antflip.Pages
         private bool northWestChecked;
         private bool omniChecked;
 
-
-        // public DirectionalBandContext(ICommand actuate, DirectionalBandData data)
-        //     => (this.actuate, this.data, this.current) = (actuate, data, null);
-
         public DirectionalBandContext(MainWindowContext context, DirectionalBandData data) {
             this.data = data;
             this.northChecked = this.data.North.Default;
@@ -51,8 +47,9 @@ namespace Antflip.Pages
             this.northWestChecked = this.data.NorthWest.Default;
             this.omniChecked = this.data.Omni.Default;
             this.ActuateCommand = context.ActuateCommand;
-            WeakEventManager<MainWindowContext, BandChangingEventArgs>.AddHandler(context, "BandChanging", DoBandChanging);
-            WeakEventManager<MainWindowContext, ChangeDirectionEventArgs>.AddHandler(context, "ChangeDirection", DoChangeDirection);
+            var remoteControl = context.RemoteControl;
+            WeakEventManager<N1MMRemoteControl, BandChangedEventArgs>.AddHandler(remoteControl, "BandChanged", DoBandChanged);
+            WeakEventManager<N1MMRemoteControl, DirectionChangedEventArgs>.AddHandler(remoteControl, "DirectionChanged", DoDirectionChanged);
         }
 
         public ICommand ActuateCommand { get; init; }
@@ -141,45 +138,49 @@ namespace Antflip.Pages
             set => Set(ref this.ununEnabled, value);
         }
 
-        protected void DoBandChanging(object? source, BandChangingEventArgs? e) {
-            var context = source as MainWindowContext ?? throw new ArgumentNullException();
-            WeakEventManager<MainWindowContext, ChangeDirectionEventArgs>.RemoveHandler(
-                context, "ChangeDirection", DoChangeDirection
-            );
-            WeakEventManager<MainWindowContext, BandChangingEventArgs>.RemoveHandler(
-                context, "BandChanging", DoBandChanging
-            );
+        protected void DoBandChanged(object? source, BandChangedEventArgs? e) {
+            var context = source as N1MMRemoteControl ?? throw new ArgumentNullException();
+            if (e?.Band != null && e.Band != this.data.Band) {
+                WeakEventManager<N1MMRemoteControl, DirectionChangedEventArgs>.RemoveHandler(
+                    context, "DirectionChanged", DoDirectionChanged
+                );
+                WeakEventManager<N1MMRemoteControl, BandChangedEventArgs>.RemoveHandler(
+                    context, "BandChanged", DoBandChanged
+                );
+            }
         }
 
-        protected void DoChangeDirection(object? source, ChangeDirectionEventArgs? e) {
-            switch (e?.Azimuth) {
-                case 360.0:
-                    this.OmniChecked = true;
-                    break;
-                case >= 337.5 or < 22.5:
-                    this.NorthChecked = true;
-                    break;
-                case >= 22.5 and < 67.5:
-                    this.NorthEastChecked = true;
-                    break;
-                case >= 67.5 and < 112.5:
-                    this.EastChecked = true;
-                    break;
-                case >= 112.5 and < 157.5:
-                    this.SouthEastChecked = true;
-                    break;
-                case >= 157.5 and < 202.5:
-                    this.SouthChecked = true;
-                    break;
-                case >= 202.5 and < 247.5:
-                    this.SouthWestChecked = true;
-                    break;
-                case >= 247.5 and < 292.5:
-                    this.WestChecked = true;
-                    break;
-                case >= 292.5 and < 337.5:
-                    this.NorthWestChecked = true;
-                    break;
+        protected void DoDirectionChanged(object? source, DirectionChangedEventArgs? e) {
+            if (e?.Band == this.data.Band) {
+                switch (e?.Azimuth) {
+                    case 360.0:
+                        this.OmniChecked = true;
+                        break;
+                    case >= 337.5 or < 22.5:
+                        this.NorthChecked = true;
+                        break;
+                    case >= 22.5 and < 67.5:
+                        this.NorthEastChecked = true;
+                        break;
+                    case >= 67.5 and < 112.5:
+                        this.EastChecked = true;
+                        break;
+                    case >= 112.5 and < 157.5:
+                        this.SouthEastChecked = true;
+                        break;
+                    case >= 157.5 and < 202.5:
+                        this.SouthChecked = true;
+                        break;
+                    case >= 202.5 and < 247.5:
+                        this.SouthWestChecked = true;
+                        break;
+                    case >= 247.5 and < 292.5:
+                        this.WestChecked = true;
+                        break;
+                    case >= 292.5 and < 337.5:
+                        this.NorthWestChecked = true;
+                        break;
+                }
             }
         }
     }
