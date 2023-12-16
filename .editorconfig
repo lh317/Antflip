@@ -3,6 +3,7 @@ root = true
 
 # C# files
 [*.cs]
+guidelines = 80, 100
 indent_size = 4
 indent_style = space
 tab_width = 4
