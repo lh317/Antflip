@@ -116,6 +116,7 @@ namespace Antflip
         private IReadOnlyList<MenuItem> menuItems = null!;
         // Must be an object to support settings page.
         private object? selectedItem = null;
+        private bool isEnabled = true;
 
         public MainWindowContext() {
             this.settings = new SettingsContext(usbDriver);
@@ -150,9 +151,10 @@ namespace Antflip
             set => this.Set(ref this.menuItems, value);
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1822", Justification = "WPF Binding")]
-        public Type SettingsPage => typeof(Pages.Settings);
-
+        public bool IsEnabled {
+            get => this.isEnabled;
+            set => this.Set(ref this.isEnabled, value);
+        }
 
         public ICommand ActuateCommand { get; }
 
@@ -224,23 +226,31 @@ namespace Antflip
         }
 
         private void DoBandChanged(object? source, BandChangedEventArgs e) {
-            var bandItem = this.MenuItems[(int)e.Band];
-            if (bandItem != this.SelectedItem) {
-                this.SelectedItem = bandItem;
+            if (this.isEnabled) {
+                var bandItem = this.MenuItems[(int)e.Band];
+                if (bandItem != this.SelectedItem) {
+                    this.SelectedItem = bandItem;
+                } else {
+                    this.RemoteControl.BandChangeDone.Set();
+                }
             } else {
+                e.Cancel = true;
                 this.RemoteControl.BandChangeDone.Set();
             }
         }
 
-        public void OnNavigated(object sender, NavigationEventArgs e) {
-            this.usbDriver.CloseAll();
-            foreach (var relay in this.Relays) {
-                relay.IsOn = false;
-            }
+        public void OnNavigating(object sender, NavigatingCancelEventArgs e) {
+            var frame = sender as Frame;
             var page = (Page)e.Content;
-            if (page.GetType() == this.SettingsPage) {
+            if (page.GetType() == typeof(Pages.Settings)) {
                 page.DataContext = this.settings;
-            } else {
+            } else if(page.GetType() != typeof(Pages.Transmitting)) {
+                if (e.NavigationMode != NavigationMode.Back || frame?.CurrentSourcePageType != typeof(Pages.Transmitting)) {
+                    this.usbDriver.CloseAll();
+                    foreach (var relay in this.Relays) {
+                        relay.IsOn = false;
+                    }
+                }
                 page.DataContext = (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
                 this.RemoteControl.BandChangeDone.Set();
             }

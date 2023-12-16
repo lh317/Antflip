@@ -34,7 +34,7 @@ namespace Antflip
     /// appropriate event on the navigation view, such as
     /// <see cref="ModernWpf.Controls.NavigationView.ItemInvoked" /> or
     /// <see cref="ModernWpf.Controls.NavigationView.SelectionChanged" />. Set
-    /// <see cref="ItemConverter" /> to a <see cref="IValueConveter" /> that
+    /// <see cref="ItemConverter" /> to a <see cref="IValueConverter" /> that
     /// converts from the selected navigation item to the <c>typeof(Page)</c> to
     /// be loaded.  Additionally, set <see cref="SettingsPageType" /> to the
     /// <c>typeof(Page)</c> for the Settings in your application, if it exists.

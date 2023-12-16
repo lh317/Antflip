@@ -32,6 +32,8 @@ namespace Antflip
 
     public class BandChangedEventArgs : EventArgs
     {
+        public bool Cancel {get; set; } = false;
+
         public Band Band { get; init; }
 
         public BandChangedEventArgs(Band band) => this.Band = band;
@@ -58,18 +60,21 @@ namespace Antflip
                     if (rotorTask.IsCompletedSuccessfully) {
                         var message = rotorTask.Result;
                         if (message.Name == this.RotorName) {
+                            var ev = new BandChangedEventArgs(message.Band);
                             if (null != this.BandChanged) {
-                                this.BandChanged.Invoke(this, new(message.Band));
+                                this.BandChangeDone.Reset();
+                                this.BandChanged.Invoke(this, ev);
                                 await this.BandChangeDone.WaitOneAsync();
                             }
-                            this.DirectionChanged?.Invoke(this, new(message.Band, message.Azimuth));
+                            if (!ev.Cancel) {
+                                this.DirectionChanged?.Invoke(this, new(message.Band, message.Azimuth));
+                            }
                         }
                     }
                     if (udpTask.IsCompletedSuccessfully) {
                         var message = udpTask.Result;
                         if (message.Radio == this.Radio && null != this.BandChanged) {
                             this.BandChanged.Invoke(this, new(message.Band));
-                            await this.BandChangeDone.WaitOneAsync();
                         }
                     }
                     if (rotorTask.IsCompleted) {

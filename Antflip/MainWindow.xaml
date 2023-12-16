@@ -20,6 +20,7 @@ limitations under the License.
         xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:Antflip"
+        xmlns:pages="clr-namespace:Antflip.Pages"
         xmlns:controls="clr-namespace:Antflip.Controls"
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
@@ -36,7 +37,9 @@ limitations under the License.
                      PaneTitle="Bands"
                      PaneDisplayMode="Top"
                      MenuItemsSource="{Binding MenuItems}"
-                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                     IsEnabled="{Binding IsEnabled}"
+                     >
     <ui:NavigationView.MenuItemTemplate>
       <DataTemplate DataType="local:MenuItem">
         <ui:NavigationViewItem Content="{Binding Content}" />
@@ -52,12 +55,15 @@ limitations under the License.
           <Behaviors:EventTrigger EventName="SelectionChanged"
                                   SourceObject="{Binding ElementName=NavigationView}">
             <local:NavigationAction ItemConverter="{StaticResource MenuItemToPageConverter}"
-                                    SettingsPageType="{Binding SettingsPage, Mode=OneTime}" />
+                                    SettingsPageType="pages:Settings" />
           </Behaviors:EventTrigger>
-          <Behaviors:EventTrigger EventName="Navigated" SourceObject="{Binding ElementName=ContentFrame}">
-            <Behaviors:CallMethodAction TargetObject="{Binding}" MethodName="OnNavigated" />
-          </Behaviors:EventTrigger>
+        <Behaviors:EventTrigger EventName="Navigating" SourceObject="{Binding ElementName=ContentFrame}">
+            <Behaviors:CallMethodAction TargetObject="{Binding}" MethodName="OnNavigating" />
+        </Behaviors:EventTrigger>
         </Behaviors:Interaction.Triggers>
+        <Behaviors:Interaction.Behaviors>
+          <local:LockoutBehavior LockoutPageType="pages:Transmitting" IsEnabled="{Binding IsEnabled}" />
+        </Behaviors:Interaction.Behaviors>
       </ui:Frame>
       <ui:CommandBar Grid.Row="1">
                 <ui:CommandBar.Content>
