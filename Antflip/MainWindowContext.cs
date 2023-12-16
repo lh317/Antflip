@@ -117,12 +117,15 @@ namespace Antflip
         // Must be an object to support settings page.
         private object? selectedItem = null;
         private bool isEnabled = true;
+        private K3SSerialControl serialControl = new K3SSerialControl();
+        private DateTime lastTransmitTimestamp = DateTime.Now;
 
         public MainWindowContext() {
             this.settings = new SettingsContext(usbDriver);
             this.settings.PropertyChanged += this.DoConfigPropertyChanged;
             this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.settings.Interface.PropertyChanged += this.DoInterfacePropertyChanged;
+            this.settings.ComPort.PropertyChanged += this.DoComPortPropertyChanged;
             DoConfigPropertyChanged(this, new PropertyChangedEventArgs("RelayData"));
             this.ActuateCommand = new RelayCommand<RelayActions>(
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
@@ -133,6 +136,11 @@ namespace Antflip
             var address = this.settings.Interface.Address;
             if (address != null) {
                 this.RemoteControl.Restart(address);
+            }
+            this.serialControl.Transmitting += this.DoTransmitting;
+            var comPort = this.settings.ComPort.Text;
+            if (null != comPort && comPort.Length > 0) {
+                this.serialControl.Restart(comPort);
             }
         }
 
@@ -190,6 +198,19 @@ namespace Antflip
                 var address = this.settings.Interface.Address;
                 if (address != null) {
                     this.RemoteControl.Restart(address);
+                } else {
+                    this.RemoteControl.Cancel();
+                }
+            }
+        }
+
+        private void DoComPortPropertyChanged(object? source, PropertyChangedEventArgs e) {
+            if (e.PropertyName == "Text") {
+                var comPort = this.settings.ComPort.Text;
+                if (comPort != null && comPort.Length > 0) {
+                    this.serialControl.Restart(comPort);
+                } else {
+                    this.serialControl.Cancel();
                 }
             }
         }
@@ -236,6 +257,18 @@ namespace Antflip
             } else {
                 e.Cancel = true;
                 this.RemoteControl.BandChangeDone.Set();
+            }
+        }
+
+        private async void DoTransmitting(object? source, TransmittingEventArgs e) {
+            if (e.Transmitting) {
+                this.lastTransmitTimestamp = DateTime.Now;
+                this.IsEnabled = false;
+            } else {
+                await Task.Delay(100);
+                if (this.lastTransmitTimestamp.AddMilliseconds(100) <= DateTime.Now) {
+                    this.IsEnabled = true;
+                }
             }
         }
 

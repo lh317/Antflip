@@ -26,16 +26,22 @@ namespace Antflip
         public void Dispose() {
             this.cancellationTokenSource.Cancel();
             this.cancellationTokenSource.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public Task Restart(T value) {
+            this.Cancel();
+            this.loop = this.Start(value, this.cancellationTokenSource.Token);
+            return this.loop;
+        }
+
+        public void Cancel() {
             if (loop != null) {
                 this.cancellationTokenSource.Cancel();
                 this.cancellationTokenSource.Dispose();
                 this.cancellationTokenSource = new CancellationTokenSource();
+                this.loop = null;
             }
-            this.loop = this.Start(value, this.cancellationTokenSource.Token);
-            return this.loop;
         }
 
         protected abstract Task Start(T value, CancellationToken token);
