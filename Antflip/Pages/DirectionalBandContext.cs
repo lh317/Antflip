@@ -34,7 +34,7 @@ namespace Antflip.Pages
         private bool westChecked;
         private bool northWestChecked;
         private bool omniChecked;
-        private N1MMRemoteControl remoteControl;
+        private readonly N1MMRemoteControl remoteControl;
 
         public DirectionalBandContext(MainWindowContext context, DirectionalBandData data) {
             this.data = data;

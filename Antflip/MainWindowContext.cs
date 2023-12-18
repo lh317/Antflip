@@ -14,11 +14,8 @@
 using System;
 using System.ComponentModel;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Globalization;
-using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -117,7 +114,7 @@ namespace Antflip
         // Must be an object to support settings page.
         private object? selectedItem = null;
         private bool isEnabled = true;
-        private K3SSerialControl serialControl = new K3SSerialControl();
+        private readonly K3SSerialControl serialControl = new();
         private DateTime lastTransmitTimestamp = DateTime.Now;
 
         public MainWindowContext() {
@@ -286,17 +283,15 @@ namespace Antflip
                         relay.IsOn = false;
                     }
                 }
-                if (page.DataContext == null) {
-                    page.DataContext = (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
-                }
+                page.DataContext ??= (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
                 page.Loaded += this.OnPageLoaded;
             }
         }
 
         private void OnPageLoaded(object? sender, RoutedEventArgs e) {
             this.RemoteControl.BandChangeDone.Set();
-            if (sender is Page) {
-                ((Page)sender).Loaded -= this.OnPageLoaded;
+            if (sender is Page page) {
+                page.Loaded -= this.OnPageLoaded;
             }
         }
 

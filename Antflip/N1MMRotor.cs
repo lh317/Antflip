@@ -1,4 +1,4 @@
-// Copyright 2022 lh317
+// Copyright 2023 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ namespace Antflip
 
     public class N1MMRotorClient : IDisposable
     {
-        private UdpClient client;
+        private readonly UdpClient client;
 
         public N1MMRotorClient(IPAddress address, int port = 12040) {
             this.client = new UdpClient();
@@ -106,6 +106,7 @@ namespace Antflip
 
         public void Dispose() {
             this.client.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
