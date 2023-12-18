@@ -272,26 +272,38 @@ namespace Antflip
             }
         }
 
-        public void OnNavigating(object sender, NavigatingCancelEventArgs e) {
+        public void OnNavigating(object? sender, NavigatingCancelEventArgs e) {
             var frame = sender as Frame;
             var page = (Page)e.Content;
             if (page.GetType() == typeof(Pages.Settings)) {
+                frame?.NavigationService.RemoveBackEntry();
                 page.DataContext = this.settings;
             } else if(page.GetType() != typeof(Pages.Transmitting)) {
                 if (e.NavigationMode != NavigationMode.Back || frame?.CurrentSourcePageType != typeof(Pages.Transmitting)) {
+                    frame?.NavigationService.RemoveBackEntry();
                     this.usbDriver.CloseAll();
                     foreach (var relay in this.Relays) {
                         relay.IsOn = false;
                     }
                 }
-                page.DataContext = (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
-                this.RemoteControl.BandChangeDone.Set();
+                if (page.DataContext == null) {
+                    page.DataContext = (this.selectedItem as MenuItem)?.MakeContext(this) ?? throw new InvalidOperationException();
+                }
+                page.Loaded += this.OnPageLoaded;
+            }
+        }
+
+        private void OnPageLoaded(object? sender, RoutedEventArgs e) {
+            this.RemoteControl.BandChangeDone.Set();
+            if (sender is Page) {
+                ((Page)sender).Loaded -= this.OnPageLoaded;
             }
         }
 
         public void Dispose() {
             this.RemoteControl.Dispose();
             this.usbDriver.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

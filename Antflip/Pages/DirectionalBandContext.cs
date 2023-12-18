@@ -34,6 +34,7 @@ namespace Antflip.Pages
         private bool westChecked;
         private bool northWestChecked;
         private bool omniChecked;
+        private N1MMRemoteControl remoteControl;
 
         public DirectionalBandContext(MainWindowContext context, DirectionalBandData data) {
             this.data = data;
@@ -47,9 +48,7 @@ namespace Antflip.Pages
             this.northWestChecked = this.data.NorthWest.Default;
             this.omniChecked = this.data.Omni.Default;
             this.ActuateCommand = context.ActuateCommand;
-            var remoteControl = context.RemoteControl;
-            WeakEventManager<N1MMRemoteControl, BandChangedEventArgs>.AddHandler(remoteControl, "BandChanged", DoBandChanged);
-            WeakEventManager<N1MMRemoteControl, DirectionChangedEventArgs>.AddHandler(remoteControl, "DirectionChanged", DoDirectionChanged);
+            this.remoteControl = context.RemoteControl;
         }
 
         public ICommand ActuateCommand { get; init; }
@@ -138,16 +137,12 @@ namespace Antflip.Pages
             set => Set(ref this.ununEnabled, value);
         }
 
-        protected void DoBandChanged(object? source, BandChangedEventArgs? e) {
-            var context = source as N1MMRemoteControl ?? throw new ArgumentNullException();
-            if (e?.Band != null && e.Band != this.data.Band) {
-                WeakEventManager<N1MMRemoteControl, DirectionChangedEventArgs>.RemoveHandler(
-                    context, "DirectionChanged", DoDirectionChanged
-                );
-                WeakEventManager<N1MMRemoteControl, BandChangedEventArgs>.RemoveHandler(
-                    context, "BandChanged", DoBandChanged
-                );
-            }
+        public void DoLoaded(object? source, RoutedEventArgs? e) {
+            this.remoteControl.DirectionChanged += this.DoDirectionChanged;
+        }
+
+        public void DoUnloaded(object? source, RoutedEventArgs? e) {
+            this.remoteControl.DirectionChanged -= this.DoDirectionChanged;
         }
 
         protected void DoDirectionChanged(object? source, DirectionChangedEventArgs? e) {

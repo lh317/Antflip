@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021-2022 lh317
+﻿<!-- Copyright 2021-2023 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ limitations under the License.
         xmlns:ant="clr-namespace:Antflip"
         mc:Ignorable="d"
         d:DesignHeight="450" d:DesignWidth="800"
+        KeepAlive="True"
         Title="DirectionalBand">
   <ui:Page.Resources>
     <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
@@ -35,6 +36,14 @@ limitations under the License.
       <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
   </ui:Page.Resources>
+    <Behaviors:Interaction.Triggers>
+        <Behaviors:EventTrigger EventName="Loaded">
+            <Behaviors:CallMethodAction TargetObject="{Binding}" MethodName="DoLoaded" />
+        </Behaviors:EventTrigger>
+        <Behaviors:EventTrigger EventName="Unloaded">
+            <Behaviors:CallMethodAction TargetObject="{Binding}" MethodName="DoUnloaded" />
+        </Behaviors:EventTrigger>
+    </Behaviors:Interaction.Triggers>
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="1*" />
