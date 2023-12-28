@@ -29,6 +29,7 @@ limitations under the License.
         Width="650">
   <Window.Resources>
       <local:MenuItemToPageConverter x:Key="MenuItemToPageConverter" />
+      <local:EnumToDisplayConverter x:Key="antennaConverter" />
   </Window.Resources>
   <Window.DataContext>
     <local:MainWindowContext/>
@@ -45,6 +46,9 @@ limitations under the License.
         <ui:NavigationViewItem Content="{Binding Content}" />
       </DataTemplate>
     </ui:NavigationView.MenuItemTemplate>
+    <ui:NavigationView.PaneFooter>
+      <TextBlock Text="{Binding Path=Antenna, Converter={StaticResource antennaConverter}}" VerticalAlignment="Center" />
+    </ui:NavigationView.PaneFooter>
     <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="*" />

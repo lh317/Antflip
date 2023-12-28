@@ -114,8 +114,10 @@ namespace Antflip
         // Must be an object to support settings page.
         private object? selectedItem = null;
         private bool isEnabled = true;
+        private Antenna? antenna = null;
         private readonly K3SSerialControl serialControl = new();
         private DateTime lastTransmitTimestamp = DateTime.Now;
+
 
         public MainWindowContext() {
             this.settings = new SettingsContext(usbDriver);
@@ -134,7 +136,7 @@ namespace Antflip
             if (address != null) {
                 this.RemoteControl.Restart(address);
             }
-            this.serialControl.Transmitting += this.DoTransmitting;
+            this.serialControl.MessageReceived += this.DoMessageReceived;
             var comPort = this.settings.ComPort.Text;
             if (null != comPort && comPort.Length > 0) {
                 this.serialControl.Restart(comPort);
@@ -164,6 +166,11 @@ namespace Antflip
         public ICommand ActuateCommand { get; }
 
         public N1MMRemoteControl RemoteControl {get; init;}
+
+        public Antenna? Antenna {
+            get => this.antenna;
+            set => this.Set(ref this.antenna, value);
+        }
 
         private void DoConfigPropertyChanged(object? source, PropertyChangedEventArgs e) {
             if (e.PropertyName == "RotorName") {
@@ -257,15 +264,17 @@ namespace Antflip
             }
         }
 
-        private async void DoTransmitting(object? source, TransmittingEventArgs e) {
-            if (e.Transmitting) {
+        private async void DoMessageReceived(object? source, K3SMessageReceivedEventArgs e) {
+            if (e.Message.Transmit == true) {
                 this.lastTransmitTimestamp = DateTime.Now;
                 this.IsEnabled = false;
-            } else {
+            } else if(e.Message.Transmit == false) {
                 await Task.Delay(100);
                 if (this.lastTransmitTimestamp.AddMilliseconds(100) <= DateTime.Now) {
                     this.IsEnabled = true;
                 }
+            } else if (e.Message.Antenna is Antenna ant) {
+                this.Antenna = ant;
             }
         }
 

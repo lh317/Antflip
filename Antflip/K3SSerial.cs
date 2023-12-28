@@ -13,6 +13,7 @@
 // limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -22,19 +23,30 @@ using System.Windows;
 
 namespace Antflip
 {
+    public enum Antenna
+    {
+        [Display(Name = "ANT1")]
+        Antenna1,
+        [Display(Name = "ANT2")]
+        Antenna2
+    }
+
     public record K3SMessage()
     {
         public static K3SMessage? Parse(byte[] buffer, int start, int length) {
             // Unclear what the encoding actually is
-            var message = Encoding.ASCII.GetString(buffer, start, length);
-            if (message.StartsWith("TQ")) {
-                return new K3SMessage{Transmit= message[2] == '1'};
-            } else {
-                return null;
-            }
+            var prefix = Encoding.ASCII.GetString(buffer, start, 2);
+            return (prefix, length) switch {
+                ("TQ", 3) => new K3SMessage{Transmit = buffer[start + 2] == (byte)'1'},
+                ("DS", 12) =>
+                    new K3SMessage{Antenna = (buffer[start + 10] & 0x20) == 0 ? Antflip.Antenna.Antenna1 : Antflip.Antenna.Antenna2},
+                _ => null,
+            };
         }
 
-        public bool Transmit {get; init;} = false;
+        public bool? Transmit {get; init;} = null;
+
+        public Antenna? Antenna {get; init;} = null;
     }
 
     public class K3SSerialClient : IDisposable
@@ -91,16 +103,17 @@ namespace Antflip
         }
     }
 
-    public class TransmittingEventArgs : EventArgs
+    public class K3SMessageReceivedEventArgs : EventArgs
     {
-        public bool Transmitting {get; set;}
+        public K3SMessageReceivedEventArgs(K3SMessage message) => this.Message = message;
 
-        public TransmittingEventArgs(bool tx) => this.Transmitting = tx;
+        public K3SMessage Message {get; init;}
     }
 
     public class K3SSerialControl : AsyncLoop<string>
     {
-        public event EventHandler<TransmittingEventArgs>? Transmitting;
+        public event EventHandler<K3SMessageReceivedEventArgs>? MessageReceived;
+
         protected override async Task Start(string port, CancellationToken token) {
             using (var client = new K3SSerialClient(port)) {
                 var task = client.ReceiveAsync();
@@ -108,7 +121,15 @@ namespace Antflip
                     await task.WaitAsync(token);
                     if (task.IsCompletedSuccessfully) {
                         var messages = task.Result;
-                        this.Transmitting?.Invoke(this, new (messages.Last().Transmit));
+                        messages.Reverse();
+                        var tx = messages.FirstOrDefault(m => m.Transmit != null, null);
+                        if (tx != null) {
+                            this.MessageReceived?.Invoke(this, new(tx));
+                        }
+                        var ant = messages.FirstOrDefault(m => m.Antenna != null, null);
+                        if (ant != null && ant != tx) {
+                            this.MessageReceived?.Invoke(this, new (ant));
+                        }
                     }
                     if (task.IsCompleted) {
                         task = client.ReceiveAsync();
