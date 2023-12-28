@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Antflip.USBRelay
 {
@@ -53,7 +55,9 @@ namespace Antflip.USBRelay
         public RelayActions Omni {get; init;} = new();
 
         public SwitchData PSWAP {get; init;} = new();
+        public bool[] PSWAPEnable {get; init;} = new bool[Enum.GetNames(typeof(Antenna)).Length];
         public SwitchData UNUN {get; init;} = new();
+
     }
 
     public record SwitchData
@@ -73,6 +77,7 @@ namespace Antflip.USBRelay
         public RelayActions BothStack {get; init;} = new();
 
         public SwitchData PSWAP {get; init;} = new();
+        public bool[] PSWAPEnable {get; init;} = new bool[Enum.GetNames(typeof(Antenna)).Length];
     }
 
     public record WARCBandData
@@ -82,5 +87,6 @@ namespace Antflip.USBRelay
         public RelayActions WARC { get; init; } = new();
 
         public SwitchData PSWAP {get; init;} = new();
+        public bool[] PSWAPEnable {get; init;} = new bool[Enum.GetNames(typeof(Antenna)).Length];
     }
 }

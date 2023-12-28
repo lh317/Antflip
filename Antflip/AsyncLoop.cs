@@ -19,7 +19,7 @@ namespace Antflip
 {
     public abstract class AsyncLoop<T> : IDisposable
     {
-        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource cancellationTokenSource = new();
 
         private Task? loop = null;
 

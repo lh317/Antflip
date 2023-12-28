@@ -219,7 +219,7 @@ limitations under the License.
                 </Behaviors:EventTrigger>
             </Behaviors:Interaction.Triggers>
         </ToggleButton>
-        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding PSWAP.Load, Mode=OneTime}">
+        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding PSWAPChecked}">
             <Behaviors:Interaction.Triggers>
                 <Behaviors:EventTrigger EventName="Checked">
                     <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Enable}" />

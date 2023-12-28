@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021 lh317
+﻿<!-- Copyright 2021,2023 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,6 +33,11 @@ limitations under the License.
             <Setter Property="VerticalAlignment" Value="Stretch" />
         </Style>
     </ui:Page.Resources>
+    <Behaviors:Interaction.Triggers>
+        <Behaviors:EventTrigger EventName="Unloaded">
+            <Behaviors:CallMethodAction TargetObject="{Binding}" MethodName="DoUnloaded" />
+        </Behaviors:EventTrigger>
+    </Behaviors:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -62,7 +67,7 @@ limitations under the License.
                 </Behaviors:EventTrigger>
               </Behaviors:Interaction.Triggers>
         </RadioButton>
-        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding PSWAP.Load, Mode=OneTime}">
+        <ToggleButton Grid.Row="3" Grid.Column="2" Content="Swap AMP" IsChecked="{Binding PSWAPChecked}">
             <Behaviors:Interaction.Triggers>
                 <Behaviors:EventTrigger EventName="Checked">
                     <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding PSWAP.Enable}" />

@@ -13,6 +13,7 @@
 // limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
@@ -22,6 +23,7 @@ namespace Antflip.Pages
 {
     public class DirectionalBandContext : BindableBase
     {
+        private readonly MainWindowContext context;
         private readonly DirectionalBandData data;
         private bool ununChecked = false;
         private bool ununEnabled = false;
@@ -34,9 +36,11 @@ namespace Antflip.Pages
         private bool westChecked;
         private bool northWestChecked;
         private bool omniChecked;
-        private readonly N1MMRemoteControl remoteControl;
+        private bool pswapChecked;
+
 
         public DirectionalBandContext(MainWindowContext context, DirectionalBandData data) {
+            this.context = context;
             this.data = data;
             this.northChecked = this.data.North.Default;
             this.northEastChecked = this.data.NorthEast.Default;
@@ -47,11 +51,13 @@ namespace Antflip.Pages
             this.westChecked = this.data.West.Default;
             this.northWestChecked = this.data.NorthWest.Default;
             this.omniChecked = this.data.Omni.Default;
-            this.ActuateCommand = context.ActuateCommand;
-            this.remoteControl = context.RemoteControl;
+            context.PropertyChanged += this.DoAntennaChanged;
+            this.pswapChecked = this.data.PSWAPEnable[Convert.ToInt32(context.Antenna ?? 0)];
         }
 
-        public ICommand ActuateCommand { get; init; }
+        public ICommand ActuateCommand => this.context.ActuateCommand;
+
+
         public ICommand BandActuateCommand => new RelayCommand<RelayActions>(a => {
             bool check = false;
             bool enabled = true;
@@ -127,6 +133,11 @@ namespace Antflip.Pages
             set => Set(ref this.omniChecked, value);
         }
 
+        public bool PSWAPChecked {
+            get => this.pswapChecked;
+            set => Set(ref this.pswapChecked, value);
+        }
+
         public bool UNUNChecked {
             get => this.ununChecked;
             set => Set(ref this.ununChecked, value);
@@ -138,11 +149,12 @@ namespace Antflip.Pages
         }
 
         public void DoLoaded(object? source, RoutedEventArgs? e) {
-            this.remoteControl.DirectionChanged += this.DoDirectionChanged;
+            this.context.RemoteControl.DirectionChanged += this.DoDirectionChanged;
         }
 
         public void DoUnloaded(object? source, RoutedEventArgs? e) {
-            this.remoteControl.DirectionChanged -= this.DoDirectionChanged;
+            this.context.PropertyChanged -= this.DoAntennaChanged;
+            this.context.RemoteControl.DirectionChanged -= this.DoDirectionChanged;
         }
 
         protected void DoDirectionChanged(object? source, DirectionChangedEventArgs? e) {
@@ -176,6 +188,12 @@ namespace Antflip.Pages
                         this.NorthWestChecked = true;
                         break;
                 }
+            }
+        }
+
+        protected void DoAntennaChanged(object? source, PropertyChangedEventArgs e) {
+            if (e.PropertyName == "Antenna") {
+                this.PSWAPChecked = this.data.PSWAPEnable[Convert.ToInt32(context.Antenna ?? 0)];
             }
         }
     }

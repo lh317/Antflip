@@ -69,7 +69,7 @@ namespace Antflip
             => this.Data = data;
 
         public override object MakeContext(MainWindowContext context) {
-            return new StackedBandContext(context.ActuateCommand, this.Data);
+            return new StackedBandContext(context, this.Data);
         }
     }
 
@@ -83,7 +83,7 @@ namespace Antflip
             => (this.Data) = (data);
 
         public override object MakeContext(MainWindowContext context) {
-            return new WARCBandContext(context.ActuateCommand, this.Data);
+            return new WARCBandContext(context, this.Data);
         }
     }
 

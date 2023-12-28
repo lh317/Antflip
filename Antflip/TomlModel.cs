@@ -25,21 +25,22 @@ using System;
 namespace Antflip
 {
     public record DirectionalBandModel {
-        private static HashSet<string> MODES = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase){
+        private static readonly HashSet<string> MODES = new(StringComparer.InvariantCultureIgnoreCase){
             "north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest", "omni"
         };
+
         private string? startMode;
-        public string[] North {get; set;} = new string[0];
-        public string[] Northeast {get; set;} = new string[0];
-        public string[] East {get; set;} = new string[0];
-        public string[] Southeast {get; set;} = new string[0];
-        public string[] South {get; set;} = new string[0];
-        public string[] Southwest {get; set;} = new string[0];
-        public string[] West {get; set;} = new string[0];
-        public string[] Northwest {get; set;} = new string[0];
-        public string[] Omni {get; set;} = new string[0];
-        public string[] Load {get; set;} = new string[0];
-        public bool PSWAP {get; set;} = false;
+        public string[] North {get; set;} = Array.Empty<string>();
+        public string[] Northeast {get; set;} = Array.Empty<string>();
+        public string[] East {get; set;} = Array.Empty<string>();
+        public string[] Southeast {get; set;} = Array.Empty<string>();
+        public string[] South {get; set;} = Array.Empty<string>();
+        public string[] Southwest {get; set;} = Array.Empty<string>();
+        public string[] West {get; set;} = Array.Empty<string>();
+        public string[] Northwest {get; set;} = Array.Empty<string>();
+        public string[] Omni {get; set;} = Array.Empty<string>();
+        public string[] Load {get; set;} = Array.Empty<string>();
+        public List<bool> PSWAP {get; set;} = new();
 
         public string? Start {
             get => this.startMode;
@@ -67,6 +68,15 @@ namespace Antflip
             var all = north.ConcatMany(
                 northEast, east, southEast, south, southWest, west, northWest, omni
             );
+            if (this.PSWAP.Count == 0) {
+                this.PSWAP.Add(true);
+            }
+            if (this.PSWAP.Count == 1){
+                this.PSWAP.Add(!this.PSWAP[0]);
+            }
+            if (this.PSWAP.Count != 2) {
+                throw new InvalidOperationException($"PSWAP has {PSWAP.Count} members, need <= 2");
+            }
             return new() {
                 Band = band,
                 North = new RelayActions() {
@@ -114,9 +124,8 @@ namespace Antflip
                     Close = all.Except(omni).ToList(),
                     Default = (startMode == "omni")
                 },
-                PSWAP = pswap with {
-                    Load = this.PSWAP
-                },
+                PSWAP = pswap,
+                PSWAPEnable = this.PSWAP.ToArray(),
                 UNUN = unun,
                 Load = new RelayActions() {
                     Open = (from r in this.Load select relays[r]).ToList()
@@ -126,13 +135,14 @@ namespace Antflip
     }
 
     public record SwitchedBandModel {
-        private static HashSet<string> MODES = new HashSet<string>{"upper", "lower", "both"};
+        private static readonly HashSet<string> MODES = new() { "upper", "lower", "both"};
+
         private string? startMode;
         public string[]? Upper { get; set; }
         public string[]? Lower { get; set; }
         public string[]? Both { get; set; }
         public string[]? Load { get; set; }
-        public bool PSWAP {get; set;} = false;
+        public List<bool> PSWAP {get; set;} = new();
 
         public string? Start {
             get => this.startMode;
@@ -153,6 +163,16 @@ namespace Antflip
             var lower = (from r in this.Lower ?? defaults.Lower select relays[r]).ToList();
             var both = (from r in this.Both ?? defaults.Both select relays[r]).ToList();
             var all = upper.ConcatMany(lower, both);
+            var pswapEnabled = (this.PSWAP.Count > 0) ? this.PSWAP : defaults.PSWAP;
+            if (pswapEnabled.Count == 0) {
+                pswapEnabled.Add(false);
+            }
+            if (pswapEnabled.Count == 1){
+                pswapEnabled.Add(!pswapEnabled[0]);
+            }
+            if (pswapEnabled.Count != 2) {
+                throw new InvalidOperationException($"PSWAP has {PSWAP.Count} members, need <= 2");
+            }
             return new() {
                 UpperStack = new RelayActions() {
                     Open = upper,
@@ -169,9 +189,8 @@ namespace Antflip
                     Close = all.Except(both).ToList(),
                     Default = ((this.Start ?? defaults.Start) == "both")
                 },
-                PSWAP = pswap with {
-                    Load = this.PSWAP || defaults.PSWAP
-                },
+                PSWAP = pswap,
+                PSWAPEnable = pswapEnabled.ToArray(),
                 Load = new RelayActions() {
                     Open = (from r in this.Load ?? defaults.Load select relays[r]).ToList()
                 }
@@ -183,17 +202,26 @@ namespace Antflip
         public string[]? WARC { get; set; }
         public string[]? Load { get; set; }
 
-        public bool PSWAP {get; set;} = false;
+        public List<bool> PSWAP {get; set;} = new();
 
         public WARCBandData ToBandData(WARCBandModel defaults, IDictionary<string, int> relays, SwitchData pswap, SwitchData unun) {
+            var pswapEnabled = (this.PSWAP.Count > 0) ? this.PSWAP : defaults.PSWAP;
+            if (pswapEnabled.Count == 0) {
+                pswapEnabled.Add(true);
+            }
+            if (pswapEnabled.Count == 1){
+                pswapEnabled.Add(!pswapEnabled[0]);
+            }
+            if (pswapEnabled.Count != 2) {
+                throw new InvalidOperationException($"PSWAP has {PSWAP.Count} members, need <= 2");
+            }
             return new() {
                 WARC = new RelayActions() {
                     Open = (from r in this.WARC ?? defaults.WARC select relays[r]).ToList(),
                     Default = true
                 },
-                PSWAP = pswap with {
-                    Load = this.PSWAP || defaults.PSWAP
-                },
+                PSWAP = pswap,
+                PSWAPEnable = pswapEnabled.ToArray(),
                 Load = new RelayActions() {
                     Open = (from r in this.Load ?? defaults.Load select relays[r]).ToList()
                 }
@@ -208,12 +236,13 @@ namespace Antflip
 relays = ['160N', 'WEST', 'SOUTH', '80N', 'UNUN', '40M', 'WARC', 'PSWAP', 'UPPER', 'LOWER', 'SINGLE']
 [warc]
 warc = ['WARC']
-pswap = true
+pswap = [true, false]
 
 [switched]
 upper = ['UPPER', 'SINGLE']
 lower = ['LOWER', 'SINGLE']
 start = 'upper'
+pswap = [false, true]
 
 [160m]
 north = ['160N']
@@ -225,7 +254,7 @@ southwest = ['WEST', 'SOUTH', 'UNUN']
 west = ['WEST']
 northwest = ['160N', 'WEST']
 omni = ['160N', 'WEST', 'SOUTH', 'UNUN']
-pswap = true
+pswap = [true, false]
 start = 'north'
 
 [80m]
@@ -238,17 +267,17 @@ southwest = ['WEST', 'SOUTH']
 west = ['WEST']
 northwest = ['80N', 'WEST']
 omni = ['80N', 'WEST', 'SOUTH', 'UNUN']
-pswap = true
+pswap = [true, false]
 start = 'north'
 
 [40m]
 load = ['40M']
 ";
-        public static readonly Lazy<RelayData> DefaultRelayData = new Lazy<RelayData>(
+        public static readonly Lazy<RelayData> DefaultRelayData = new(
             () => Toml.ToModel<TomlModel>(DEFAULT).ToRelayData()
         );
 
-        public string[] Relays { get; set; } = new string[0];
+        public string[] Relays { get; set; } = Array.Empty<string>();
         public SwitchedBandModel Switched {get; set;} = new();
         public WARCBandModel Warc{ get; set;} = new();
         [DataMember(Name = "160m")]
@@ -298,12 +327,12 @@ load = ['40M']
                     Close = ununList
                 }
             };
-            this.Switched.Upper ??= new string[0];
-            this.Switched.Lower ??= new string[0];
-            this.Switched.Both ??= new string[0];
-            this.Switched.Load ??= new string[0];
-            this.Warc.WARC ??= new string[0];
-            this.Warc.Load ??= new string[0];
+            this.Switched.Upper ??= Array.Empty<string>();
+            this.Switched.Lower ??= Array.Empty<string>();
+            this.Switched.Both ??= Array.Empty<string>();
+            this.Switched.Load ??= Array.Empty<string>();
+            this.Warc.WARC ??= Array.Empty<string>();
+            this.Warc.Load ??= Array.Empty<string>();
             return new RelayData {
                 Relays = this.Relays.ToList(),
                 Band160M = this.Band160M.ToBandData(Band.Band160M, relays, pswap, unun),
