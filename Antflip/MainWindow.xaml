@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021, 2022 lh317
+﻿<!-- Copyright 2021-2024 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,6 +34,16 @@ limitations under the License.
   <Window.DataContext>
     <local:MainWindowContext/>
   </Window.DataContext>
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+Alt+Up" Command="{Binding UpCommand}"
+                HotkeyManager.RegisterGlobalHotkey="True" />
+        <KeyBinding Gesture="Ctrl+Alt+Down" Command="{Binding DownCommand}"
+            HotkeyManager.RegisterGlobalHotkey="True" />
+        <KeyBinding Gesture="Ctrl+Alt+Left" Command="{Binding WestCommand}"
+        HotkeyManager.RegisterGlobalHotkey="True" />
+        <KeyBinding Gesture="Ctrl+Alt+Right" Command="{Binding EastCommand}"
+        HotkeyManager.RegisterGlobalHotkey="True" />
+    </Window.InputBindings>
   <ui:NavigationView x:Name="NavigationView"
                      PaneTitle="Bands"
                      PaneDisplayMode="Top"

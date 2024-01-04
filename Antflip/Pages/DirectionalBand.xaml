@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021-2023 lh317
+﻿<!-- Copyright 2021-2024 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Column="1" Content="N" IsChecked="{Binding NorthChecked}">
+    <RadioButton x:Name="North" Grid.Column="1" Content="_N" IsChecked="{Binding NorthChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding North}" />
@@ -107,7 +107,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="1" Content="W" IsChecked="{Binding WestChecked}">
+    <RadioButton x:Name="West" Grid.Row="1" Content="_W" IsChecked="{Binding WestChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding West}" />
@@ -141,7 +141,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="1" Grid.Column="2" Content="E" IsChecked="{Binding EastChecked}">
+    <RadioButton x:Name="East"  Grid.Row="1" Grid.Column="2" Content="_E" IsChecked="{Binding EastChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding East}" />
@@ -175,7 +175,7 @@ limitations under the License.
         </Behaviors:EventTrigger>
       </Behaviors:Interaction.Triggers>
     </RadioButton>
-    <RadioButton Grid.Row="2" Grid.Column="1" Content="S" IsChecked="{Binding SouthChecked}">
+    <RadioButton x:Name="South" Grid.Row="2" Grid.Column="1" Content="_S" IsChecked="{Binding SouthChecked}">
       <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Checked">
           <Behaviors:InvokeCommandAction Command="{Binding BandActuateCommand}" CommandParameter="{Binding South}" />

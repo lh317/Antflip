@@ -117,6 +117,10 @@ namespace Antflip
         private Antenna? antenna = null;
         private readonly K3SSerialControl serialControl = new();
         private DateTime lastTransmitTimestamp = DateTime.Now;
+        private ICommand? upCommand = null;
+        private ICommand? downCommand = null;
+        private ICommand? westCommand = null;
+        private ICommand? eastCommand = null;
 
 
         public MainWindowContext() {
@@ -139,8 +143,8 @@ namespace Antflip
                 if (address != null) {
                     this.RemoteControl.Restart(address);
                 }
-            if (null != comPort && comPort.Length > 0) {
-                this.serialControl.Restart(comPort);
+                if (null != comPort && comPort.Length > 0) {
+                   this.serialControl.Restart(comPort);
                 }
             }
         }
@@ -166,6 +170,23 @@ namespace Antflip
         }
 
         public ICommand ActuateCommand { get; }
+
+        public ICommand? UpCommand {
+            get => this.upCommand;
+            set => this.Set(ref this.upCommand, value);
+        }
+        public ICommand? DownCommand {
+            get => this.downCommand;
+            set => this.Set(ref this.downCommand, value);
+        }
+        public ICommand? WestCommand {
+            get => this.westCommand;
+            set => this.Set(ref this.westCommand, value);
+        }
+        public ICommand? EastCommand {
+            get => this.eastCommand;
+            set => this.Set(ref this.eastCommand, value);
+        }
 
         public N1MMRemoteControl RemoteControl {get; init;}
 
@@ -281,6 +302,10 @@ namespace Antflip
         }
 
         public void OnNavigating(object? sender, NavigatingCancelEventArgs e) {
+            this.UpCommand = null;
+            this.DownCommand = null;
+            this.WestCommand = null;
+            this.EastCommand = null;
             var frame = sender as Frame;
             var page = (Page)e.Content;
             if (page.GetType() == typeof(Pages.Settings)) {

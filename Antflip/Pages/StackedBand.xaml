@@ -1,4 +1,4 @@
-﻿<!-- Copyright 2021,2023 lh317
+﻿<!-- Copyright 2021-2024 lh317
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,7 +33,10 @@ limitations under the License.
             <Setter Property="VerticalAlignment" Value="Stretch" />
         </Style>
     </ui:Page.Resources>
-    <Behaviors:Interaction.Triggers>
+        <Behaviors:Interaction.Triggers>
+        <Behaviors:EventTrigger EventName="Loaded">
+            <Behaviors:CallMethodAction TargetObject="{Binding}" MethodName="DoLoaded" />
+        </Behaviors:EventTrigger>
         <Behaviors:EventTrigger EventName="Unloaded">
             <Behaviors:CallMethodAction TargetObject="{Binding}" MethodName="DoUnloaded" />
         </Behaviors:EventTrigger>
@@ -50,7 +53,7 @@ limitations under the License.
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <RadioButton GroupName="Stack" Content="Upper" IsChecked="{Binding UpperStack.Default, Mode=OneTime}">
+        <RadioButton GroupName="Stack" Content="_Upper" IsChecked="{Binding UpperChecked}">
           <Behaviors:Interaction.Triggers>
             <Behaviors:EventTrigger EventName="Checked">
               <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding UpperStack}" />
@@ -67,7 +70,7 @@ limitations under the License.
             </Behaviors:EventTrigger>
           </Behaviors:Interaction.Triggers>
         </RadioButton>
-        <RadioButton GroupName="Stack" Grid.Row="1" Content="Both" IsChecked="{Binding BothStack.Default, Mode=OneTime}">
+        <RadioButton GroupName="Stack" Grid.Row="1" Content="_Both" IsChecked="{Binding BothChecked}">
         <Behaviors:Interaction.Triggers>
             <Behaviors:EventTrigger EventName="Checked">
               <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding BothStack}" />
@@ -84,7 +87,7 @@ limitations under the License.
             </Behaviors:EventTrigger>
           </Behaviors:Interaction.Triggers>
         </RadioButton>
-        <RadioButton GroupName="Stack" Grid.Row="2" Content="Lower" IsChecked="{Binding LowerStack.Default, Mode=OneTime}">
+        <RadioButton GroupName="Stack" Grid.Row="2" Content="_Lower" IsChecked="{Binding LowerChecked}">
         <Behaviors:Interaction.Triggers>
             <Behaviors:EventTrigger EventName="Checked">
               <Behaviors:InvokeCommandAction Command="{Binding ActuateCommand}" CommandParameter="{Binding LowerStack}" />

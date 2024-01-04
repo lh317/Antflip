@@ -1,4 +1,4 @@
-// Copyright 2021-2023 lh317
+// Copyright 2021-2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,12 +51,12 @@ namespace Antflip.Pages
             this.westChecked = this.data.West.Default;
             this.northWestChecked = this.data.NorthWest.Default;
             this.omniChecked = this.data.Omni.Default;
+            // Register now to ensure changes are seen during loading
             context.PropertyChanged += this.DoAntennaChanged;
             this.pswapChecked = this.data.PSWAPEnable[Convert.ToInt32(context.Antenna ?? 0)];
         }
 
         public ICommand ActuateCommand => this.context.ActuateCommand;
-
 
         public ICommand BandActuateCommand => new RelayCommand<RelayActions>(a => {
             bool check = false;
@@ -149,7 +149,17 @@ namespace Antflip.Pages
         }
 
         public void DoLoaded(object? source, RoutedEventArgs? e) {
+            // Loaded may fire multiple times, so remove event handlers before installing.
+            this.context.PropertyChanged -= this.DoAntennaChanged;
+            this.context.PropertyChanged += this.DoAntennaChanged;
+            this.context.RemoteControl.DirectionChanged -= this.DoDirectionChanged;
             this.context.RemoteControl.DirectionChanged += this.DoDirectionChanged;
+            if (this.context.UpCommand == null) {
+                this.context.UpCommand = new RelayCommand<object>((_) => this.NorthChecked = true);
+                this.context.DownCommand = new RelayCommand<object>((_) => this.SouthChecked = true);
+                this.context.WestCommand = new RelayCommand<object>((_) => this.WestChecked = true);
+                this.context.EastCommand = new RelayCommand<object>((_) => this.EastChecked = true);
+            }
         }
 
         public void DoUnloaded(object? source, RoutedEventArgs? e) {
@@ -191,8 +201,8 @@ namespace Antflip.Pages
             }
         }
 
-        protected void DoAntennaChanged(object? source, PropertyChangedEventArgs e) {
-            if (e.PropertyName == "Antenna") {
+        protected void DoAntennaChanged(object? source, PropertyChangedEventArgs? e) {
+            if (e?.PropertyName == "Antenna") {
                 this.PSWAPChecked = this.data.PSWAPEnable[Convert.ToInt32(context.Antenna ?? 0)];
             }
         }
