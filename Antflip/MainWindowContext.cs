@@ -1,4 +1,4 @@
-// Copyright 2021-2023 lh317
+// Copyright 2021-2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -133,13 +133,15 @@ namespace Antflip
             this.RemoteControl = new N1MMRemoteControl(this.settings.RotorName, this.settings.SelectedRadio);
             this.RemoteControl.BandChanged += this.DoBandChanged;
             var address = this.settings.Interface.Address;
-            if (address != null) {
-                this.RemoteControl.Restart(address);
-            }
             this.serialControl.MessageReceived += this.DoMessageReceived;
             var comPort = this.settings.ComPort.Text;
+            if (!DesignerProperties.GetIsInDesignMode(new DependencyObject())) {
+                if (address != null) {
+                    this.RemoteControl.Restart(address);
+                }
             if (null != comPort && comPort.Length > 0) {
                 this.serialControl.Restart(comPort);
+                }
             }
         }
 
