@@ -1,4 +1,4 @@
-// Copyright 2023 lh317
+// Copyright 2023-2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ namespace Antflip
                 try {
                     this.serialPort.Open();
                 } catch(Exception) {
-                    MessageBox.Show("Failed to open serial port {serialPort.PortName}, please reconnect");
+                    MessageBox.Show($"Failed to open serial port {serialPort.PortName}, please reconnect");
                     throw;
                 }
             }
