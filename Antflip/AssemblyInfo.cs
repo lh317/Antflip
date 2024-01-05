@@ -1,4 +1,4 @@
-// Copyright 2021 lh317
+// Copyright 2021, 2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System.Windows;
+using System.Resources;
 
 [assembly:ThemeInfo(
     ResourceDictionaryLocation.None, //where theme specific resource dictionaries are located
@@ -21,3 +22,4 @@ using System.Windows;
                                               //(used if a resource is not found in the page,
                                               // app, or any theme specific resource dictionaries)
 )]
+[assembly:NeutralResourcesLanguageAttribute("en")]

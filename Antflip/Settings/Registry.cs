@@ -1,4 +1,4 @@
-// Copyright 2022-2023 lh317
+// Copyright 2022-2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,15 +29,14 @@ namespace Antflip.Settings
         [return: NotNullIfNotNull("defaultValue")]
         private static T? Get<T>(string ValueName, T? defaultValue) {
             try {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip")) {
-                    var stored = key.GetValue(ValueName);
-                    if (stored != null) {
-                        var type = typeof(T);
-                        // Casting int -> enum type does not validate the value is legal for
-                        // the enum type!
-                        if (!type.IsEnum || (type.IsEnum && Enum.IsDefined(type, stored))) {
-                            return (T)stored;
-                        }
+                using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip");
+                var stored = key.GetValue(ValueName);
+                if (stored != null) {
+                    var type = typeof(T);
+                    // Casting int -> enum type does not validate the value is legal for
+                    // the enum type!
+                    if (!type.IsEnum || (type.IsEnum && Enum.IsDefined(type, stored))) {
+                        return (T)stored;
                     }
                 }
             } catch (Exception e) when (e is SecurityException || e is IOException || e is UnauthorizedAccessException || e is InvalidCastException) {
@@ -47,9 +46,8 @@ namespace Antflip.Settings
 
         private static void Set(string ValueName, object value) {
             try {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip")) {
-                    key.SetValue(ValueName, value);
-                }
+                using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip");
+                key.SetValue(ValueName, value);
             } catch (Exception e) when (e is SecurityException || e is IOException || e is UnauthorizedAccessException) {
             }
         }
@@ -103,13 +101,11 @@ namespace Antflip.Settings
         public static void SortSavedBoardOrder(this IList<USBRelayBoard> boards) {
             var map = new Dictionary<string, int>();
             try {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards")) {
-                    foreach (var name in key.GetValueNames()) {
-                        if (int.TryParse(name, NumberStyles.None, CultureInfo.InvariantCulture, out var index)) {
-                            var boardName = key.GetValue(name) as string;
-                            if (boardName != null) {
-                                map.Add(boardName, index);
-                            }
+                using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards");
+                foreach (var name in key.GetValueNames()) {
+                    if (int.TryParse(name, NumberStyles.None, CultureInfo.InvariantCulture, out var index)) {
+                        if (key.GetValue(name) is string boardName) {
+                            map.Add(boardName, index);
                         }
                     }
                 }
@@ -131,16 +127,15 @@ namespace Antflip.Settings
 
         public static void SaveBoardOrder(this IEnumerable<USBRelayBoard> boards) {
             try {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards")) {
-                    var indexes = boards.Select((board, index) => {
-                        var indexStr = index.ToString(CultureInfo.InvariantCulture);
-                        key.SetValue(indexStr, board.Name);
-                        return indexStr;
-                    }).ToHashSet();
-                    foreach (var name in key.GetValueNames()) {
-                        if (!indexes.Contains(name)) {
-                            key.DeleteValue(name);
-                        }
+                using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Antflip\Boards");
+                var indexes = boards.Select((board, index) => {
+                    var indexStr = index.ToString(CultureInfo.InvariantCulture);
+                    key.SetValue(indexStr, board.Name);
+                    return indexStr;
+                }).ToHashSet();
+                foreach (var name in key.GetValueNames()) {
+                    if (!indexes.Contains(name)) {
+                        key.DeleteValue(name);
                     }
                 }
             } catch (Exception e) when (e is ArgumentException || e is SecurityException || e is IOException || e is UnauthorizedAccessException) { }

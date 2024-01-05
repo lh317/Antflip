@@ -1,4 +1,4 @@
-// Copyright 2021-2023 lh317
+// Copyright 2021-2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,12 +86,11 @@ namespace Antflip.Pages
 
         private int GetDefaultInterfaceIndex() {
             try {
-                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\N1MM Logger+")) {
-                    if (key != null) {
-                        var index = NetworkInterface.LoopbackInterfaceIndex;
-                        var loopId = NetworkInterface.GetAllNetworkInterfaces()[index].Id;
-                        return Array.FindIndex(Interfaces, i => i.Id == loopId);
-                    }
+                using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\N1MM Logger+");
+                if (key != null) {
+                    var index = NetworkInterface.LoopbackInterfaceIndex;
+                    var loopId = NetworkInterface.GetAllNetworkInterfaces()[index].Id;
+                    return Array.FindIndex(Interfaces, i => i.Id == loopId);
                 }
             } catch (Exception e) when (e is SecurityException) { }
             return 0;
@@ -101,7 +100,7 @@ namespace Antflip.Pages
             get => base.SelectedIndex;
             set {
                 base.SelectedIndex = value;
-                this.OnPropertyChanged("Address");
+                this.OnPropertyChanged(nameof(Address));
                 if (-1 != value) {
                     Registry.Interface = this.Interfaces[value].Id;
                 }
@@ -115,7 +114,7 @@ namespace Antflip.Pages
                 if (this.SelectedIndex == -1) {
                     if (IPAddress.TryParse(value, out var _)) {
                         Registry.Interface = value;
-                        this.OnPropertyChanged("Address");
+                        this.OnPropertyChanged(nameof(Address));
                     }
                 }
             }
@@ -317,9 +316,7 @@ namespace Antflip.Pages
                 // lv.SelectedIndex = index;
                 var index = this.SelectedIndex;
                 if (index > 0) {
-                    USBRelayBoard temp = this.Boards[index - 1];
-                    this.Boards[index - 1] = this.Boards[index];
-                    this.Boards[index] = temp;
+                    (this.Boards[index], this.Boards[index - 1]) = (this.Boards[index - 1], this.Boards[index]);
                     this.SelectedIndex = index - 1;
                 }
             }
@@ -332,9 +329,7 @@ namespace Antflip.Pages
                 // lv.SelectedIndex = index;
                 var index = this.SelectedIndex;
                 if (index + 1 < this.Boards.Count) {
-                    USBRelayBoard temp = this.Boards[index + 1];
-                    this.Boards[index + 1] = this.Boards[index];
-                    this.Boards[index] = temp;
+                    (this.Boards[index], this.Boards[index + 1]) = (this.Boards[index + 1], this.Boards[index]);
                     this.SelectedIndex = index + 1;
                 }
             }

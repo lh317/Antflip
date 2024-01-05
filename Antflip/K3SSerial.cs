@@ -71,7 +71,7 @@ namespace Antflip
             }
             while(true) {
                 try {
-                    this.offset += await this.serialPort.BaseStream.ReadAsync(this.buffer, this.offset, this.buffer.Length - offset);
+                    this.offset += await this.serialPort.BaseStream.ReadAsync(this.buffer.AsMemory(this.offset, this.buffer.Length - offset));
                 } catch(Exception) {
                     MessageBox.Show("Serial port error, please reconnect");
                     throw;

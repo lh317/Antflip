@@ -1,4 +1,4 @@
-// Copyright 2021 lh317
+// Copyright 2021, 2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ namespace Antflip.USBRelay
 {
     public class USBRelayHandle : SafeHandle
     {
-        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static USBRelayHandle usb_relay_device_enumerate();
 
-        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static void usb_relay_device_free_enumerate(USBRelayHandle handle);
 
@@ -40,7 +38,7 @@ namespace Antflip.USBRelay
         // There must be an actual default constructor (one with default
         // arguments does not work) in order for the runtime interop with
         // IntPtr to work.
-        private USBRelayHandle() : base(IntPtr.Zero, true) { }
+        public USBRelayHandle() : base(IntPtr.Zero, true) { }
 
         protected USBRelayHandle(bool owned) : base(IntPtr.Zero, owned) { }
 
@@ -56,7 +54,7 @@ namespace Antflip.USBRelay
 
     public class USBRelayInnerHandle : USBRelayHandle
     {
-        private USBRelayInnerHandle() : base(false) { }
+        public USBRelayInnerHandle() : base(false) { }
     }
 
 }

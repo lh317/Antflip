@@ -1,4 +1,4 @@
-// Copyright 2023 lh317
+// Copyright 2023-2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ namespace Antflip
             }
         }
 
-        public SwitchedBandData ToBandData(SwitchedBandModel defaults, IDictionary<string, int> relays, SwitchData pswap, SwitchData unun) {
+        public SwitchedBandData ToBandData(SwitchedBandModel defaults, IDictionary<string, int> relays, SwitchData pswap) {
 
             var upper = (from r in this.Upper ?? defaults.Upper select relays[r]).ToList();
             var lower = (from r in this.Lower ?? defaults.Lower select relays[r]).ToList();
@@ -204,7 +204,7 @@ namespace Antflip
 
         public List<bool> PSWAP {get; set;} = new();
 
-        public WARCBandData ToBandData(WARCBandModel defaults, IDictionary<string, int> relays, SwitchData pswap, SwitchData unun) {
+        public WARCBandData ToBandData(WARCBandModel defaults, IDictionary<string, int> relays, SwitchData pswap) {
             var pswapEnabled = (this.PSWAP.Count > 0) ? this.PSWAP : defaults.PSWAP;
             if (pswapEnabled.Count == 0) {
                 pswapEnabled.Add(true);
@@ -337,13 +337,13 @@ load = ['40M']
                 Relays = this.Relays.ToList(),
                 Band160M = this.Band160M.ToBandData(Band.Band160M, relays, pswap, unun),
                 Band80M = this.Band80M.ToBandData(Band.Band80M, relays, pswap, unun) ,
-                Band40M = this.Band40M.ToBandData(this.Switched, relays, pswap, unun),
-                Band30M = this.Band30M.ToBandData(this.Warc, relays, pswap, unun),
-                Band20M = this.Band20M.ToBandData(this.Switched, relays, pswap, unun),
-                Band17M = this.Band17M.ToBandData(this.Warc, relays, pswap, unun),
-                Band15M = this.Band15M.ToBandData(this.Switched, relays, pswap, unun),
-                Band12M = this.Band12M.ToBandData(this.Warc, relays, pswap, unun),
-                Band10M = this.Band10M.ToBandData(this.Switched, relays, pswap, unun),
+                Band40M = this.Band40M.ToBandData(this.Switched, relays, pswap),
+                Band30M = this.Band30M.ToBandData(this.Warc, relays, pswap),
+                Band20M = this.Band20M.ToBandData(this.Switched, relays, pswap),
+                Band17M = this.Band17M.ToBandData(this.Warc, relays, pswap),
+                Band15M = this.Band15M.ToBandData(this.Switched, relays, pswap),
+                Band12M = this.Band12M.ToBandData(this.Warc, relays, pswap),
+                Band10M = this.Band10M.ToBandData(this.Switched, relays, pswap),
             };
         }
     }

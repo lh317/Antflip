@@ -1,4 +1,4 @@
-// Copyright 2021 lh317
+// Copyright 2021, 2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,15 +32,12 @@ namespace Antflip.USBRelay
 
     public class USBRelayControl : IUSBRelayControl
     {
-        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static int usb_relay_device_get_status_bitmap(USBRelayHandle handle);
 
-        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static int usb_relay_device_open_one_relay_channel(USBRelayHandle handle, int index);
 
-        [SuppressMessage("Microsoft.Design", "IDE1006", Justification = "Native Method")]
         [DllImport("usb-relay-device")]
         private extern static int usb_relay_device_close_one_relay_channel(USBRelayHandle handle, int index);
 

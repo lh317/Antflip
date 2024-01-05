@@ -1,4 +1,4 @@
-// Copyright 2022 lh317
+// Copyright 2022, 2024 lh317
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace Antflip
             }
             var enumValue = (Enum)value;
             var enumType = enumValue.GetType();
-            var member = enumType.GetMember(Enum.GetName(enumType, enumValue) ?? throw new ArgumentException())[0];
+            var member = enumType.GetMember(Enum.GetName(enumType, enumValue) ?? throw new ArgumentException($"not a member of {enumType.Name}", nameof(value)))[0];
             var attribute = Attribute.GetCustomAttribute(member, typeof(DisplayAttribute), false);
             if (attribute != null) {
                 return ((DisplayAttribute)attribute).Name ?? DependencyProperty.UnsetValue;
