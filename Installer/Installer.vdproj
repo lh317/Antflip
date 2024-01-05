@@ -198,15 +198,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Antflip"
-        "ProductCode" = "8:{A5634EDD-1E8A-4D16-843E-9F9DF16EE2D4}"
-        "PackageCode" = "8:{D85EF2EE-9763-4A58-B57E-3E715903FDF4}"
+        "ProductCode" = "8:{925B370A-4E9C-43D9-8911-FB5E342B8969}"
+        "PackageCode" = "8:{59E525DC-8758-4F8C-9298-279814722C72}"
         "UpgradeCode" = "8:{A52F6333-2C88-4A7F-8FD0-600D0C2CE7D6}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.7.0"
+        "ProductVersion" = "8:1.8.0"
         "Manufacturer" = "8:Antflip"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -856,7 +856,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F6D57694BDD747749AF971831FC8ED54"
             {
-            "SourcePath" = "8:..\\Antflip\\obj\\Release\\net6.0-windows10.0.18362.0\\apphost.exe"
+            "SourcePath" = "8:..\\Antflip\\obj\\x64\\Release\\net6.0-windows10.0.18362.0\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_28B9A9F9F5E94F0CBC3F9C44BA7DBA9F"
@@ -880,6 +880,7 @@
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
+                "ExcludeFilter" = "8:*.pdb"
                 }
             }
         }
