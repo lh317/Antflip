@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO.Ports;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,20 +34,53 @@ namespace Antflip
 
     public record K3SMessage()
     {
+        private static K3SMessage FromDS(byte[] buffer, int start) {
+            var antenna = (buffer[start + 10] & 0x20) == 0 ? Antflip.Antenna.Antenna1 : Antflip.Antenna.Antenna2;
+            var display = new byte[8];
+            var grouping = 0;
+            for (var i = 0; i < 8; i++) {
+                byte b = buffer[start + 2 + i];
+                if ((b & 0x80) == 0x80) {
+                    grouping = 0;
+                }
+                display[i] = (byte)(b & 0x7F);
+                if (display[i] == (byte)'@') {
+                    display[i] = (byte)' ';
+                } else {
+                    grouping += 1;
+                }
+            }
+            var scale = grouping switch {
+                2 => 10,
+                1 => 100,
+                _ => 1,
+            };
+            var number = Encoding.ASCII.GetString(display);
+            Band? band = null;
+            try {
+                band = BandMethods.FromFrequency(Int32.Parse(number) * scale);
+            } catch (Exception e) when (e is FormatException || e is ArgumentException) {
+            }
+            return new K3SMessage{Antenna = antenna, Band = band};
+        }
+
         public static K3SMessage? Parse(byte[] buffer, int start, int length) {
             // Unclear what the encoding actually is
             var prefix = Encoding.ASCII.GetString(buffer, start, 2);
             return (prefix, length) switch {
                 ("TQ", 3) => new K3SMessage{Transmit = buffer[start + 2] == (byte)'1'},
-                ("DS", 12) =>
-                    new K3SMessage{Antenna = (buffer[start + 10] & 0x20) == 0 ? Antflip.Antenna.Antenna1 : Antflip.Antenna.Antenna2},
+                ("DS", 12) => FromDS(buffer, start),
                 _ => null,
-            };
+            };;
+
         }
+
 
         public bool? Transmit {get; init;} = null;
 
         public Antenna? Antenna {get; init;} = null;
+
+        public Band? Band {get; init;} = null;
     }
 
     public class K3SSerialClient : IDisposable

@@ -116,7 +116,8 @@ namespace Antflip
         private bool isEnabled = true;
         private Antenna? antenna = null;
         private readonly K3SSerialControl serialControl = new();
-        private DateTime lastTransmitTimestamp = DateTime.Now;
+        private DateTime lastTransmitTimestamp = DateTime.UtcNow;
+        private DateTime lastBandTimestamp = DateTime.UtcNow;
         private ICommand? upCommand = null;
         private ICommand? downCommand = null;
         private ICommand? westCommand = null;
@@ -274,7 +275,7 @@ namespace Antflip
         }
 
         private void DoBandChanged(object? source, BandChangedEventArgs e) {
-            if (this.isEnabled) {
+            if (this.isEnabled && this.lastBandTimestamp.AddMilliseconds(250) <= DateTime.UtcNow) {
                 var bandItem = this.MenuItems[(int)e.Band];
                 if (bandItem != this.SelectedItem) {
                     this.SelectedItem = bandItem;
@@ -289,15 +290,22 @@ namespace Antflip
 
         private async void DoMessageReceived(object? source, K3SMessageReceivedEventArgs e) {
             if (e.Message.Transmit == true) {
-                this.lastTransmitTimestamp = DateTime.Now;
+                this.lastTransmitTimestamp = DateTime.UtcNow;
                 this.IsEnabled = false;
             } else if(e.Message.Transmit == false) {
                 await Task.Delay(100);
-                if (this.lastTransmitTimestamp.AddMilliseconds(100) <= DateTime.Now) {
+                if (this.lastTransmitTimestamp.AddMilliseconds(100) <= DateTime.UtcNow) {
                     this.IsEnabled = true;
                 }
-            } else if (e.Message.Antenna is Antenna ant) {
+            }
+            if (e.Message.Antenna is Antenna ant) {
                 this.Antenna = ant;
+            }
+            if (this.isEnabled && this.lastBandTimestamp.AddMilliseconds(250) <= DateTime.UtcNow && e.Message.Band is Band band) {
+                var bandItem = this.MenuItems[(int)band];
+                if (bandItem != this.SelectedItem) {
+                    this.SelectedItem = bandItem;
+                }
             }
         }
 
@@ -326,6 +334,7 @@ namespace Antflip
 
         private void OnPageLoaded(object? sender, RoutedEventArgs e) {
             this.RemoteControl.BandChangeDone.Set();
+            this.lastBandTimestamp = DateTime.UtcNow;
             if (sender is Page page) {
                 page.Loaded -= this.OnPageLoaded;
             }
