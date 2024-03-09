@@ -85,6 +85,7 @@ namespace Antflip
 
     public class K3SSerialClient : IDisposable
     {
+        private static readonly byte[] AI2 = {(byte)'A', (byte)'I', (byte)'2', (byte)';'};
         private readonly SerialPort serialPort;
         private readonly byte[] buffer = new byte[64];
         int offset = 0;
@@ -98,6 +99,7 @@ namespace Antflip
             if (!this.serialPort.IsOpen) {
                 try {
                     this.serialPort.Open();
+                    await this.serialPort.BaseStream.WriteAsync(AI2);
                 } catch(Exception) {
                     MessageBox.Show($"Failed to open serial port {serialPort.PortName}, please reconnect");
                     throw;
