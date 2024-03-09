@@ -29,6 +29,7 @@ using Tomlyn;
 using Antflip.Pages;
 using Antflip.USBRelay;
 
+
 namespace Antflip
 {
     public abstract class MenuItem
@@ -116,6 +117,7 @@ namespace Antflip
         private bool isEnabled = true;
         private Antenna? antenna = null;
         private readonly K3SSerialControl serialControl = new();
+        private bool serialConnected = false;
         private DateTime lastTransmitTimestamp = DateTime.UtcNow;
         private DateTime lastBandTimestamp = DateTime.UtcNow;
         private ICommand? upCommand = null;
@@ -129,7 +131,8 @@ namespace Antflip
             this.settings.PropertyChanged += this.DoConfigPropertyChanged;
             this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.settings.Interface.PropertyChanged += this.DoInterfacePropertyChanged;
-            this.settings.ComPort.PropertyChanged += this.DoComPortPropertyChanged;
+            this.settings.ReconnectCommand = this.ReconnectCommand;
+
             DoConfigPropertyChanged(this, new PropertyChangedEventArgs("RelayData"));
             this.ActuateCommand = new RelayCommand<RelayActions>(
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
@@ -140,13 +143,12 @@ namespace Antflip
             var address = this.settings.Interface.Address;
             this.serialControl.MessageReceived += this.DoMessageReceived;
             var comPort = this.settings.ComPort.Text;
+            var baudRate = this.settings.BaudRate.Rate;
             if (!DesignerProperties.GetIsInDesignMode(new DependencyObject())) {
                 if (address != null) {
-                    this.RemoteControl.Restart(address);
+                    var _ = this.RemoteControl.Restart(address);
                 }
-                if (null != comPort && comPort.Length > 0) {
-                   this.serialControl.Restart(comPort);
-                }
+                this.ReconnectCommand.Execute(null);
             }
         }
 
@@ -193,8 +195,41 @@ namespace Antflip
 
         public Antenna? Antenna {
             get => this.antenna;
-            set => this.Set(ref this.antenna, value);
+            set {
+                this.Set(ref this.antenna, value);
+                this.OnPropertyChanged(nameof(this.AntennaText));
+            }
         }
+
+        public string? AntennaText {
+            get {
+                var value = new EnumToDisplayConverter().Convert(this.antenna, typeof(string), null, CultureInfo.CurrentUICulture);
+                if (value is not null && value != DependencyProperty.UnsetValue) {
+                    return (string)value;
+                } else if (this.serialConnected) {
+                    return this.settings.ComPort.Text;
+                } else {
+                    return "DISC";
+                }
+            }
+        }
+
+        public ICommand ReconnectCommand => new RelayCommand<object>(
+            async (_) => {
+                var portName = this.settings.ComPort.Text;
+                var baudRate = this.settings.BaudRate.Rate;
+                if (portName != null && portName.Length > 0 && baudRate != null) {
+                    int br = (int)baudRate!;
+                    await this.serialControl.Restart((portName, br));
+                } else {
+                    try {
+                        await this.serialControl.Cancel();
+                    } catch (OperationCanceledException) {
+                        // Intentional suppress
+                    }
+                }
+            }
+        );
 
         private void DoConfigPropertyChanged(object? source, PropertyChangedEventArgs e) {
             if (e.PropertyName == "RotorName") {
@@ -221,24 +256,17 @@ namespace Antflip
             }
         }
 
-        private void DoInterfacePropertyChanged(object? source, PropertyChangedEventArgs e) {
+        private async void DoInterfacePropertyChanged(object? source, PropertyChangedEventArgs e) {
             if (e.PropertyName == "Address") {
                 var address = this.settings.Interface.Address;
                 if (address != null) {
-                    this.RemoteControl.Restart(address);
+                    await this.RemoteControl.Restart(address);
                 } else {
-                    this.RemoteControl.Cancel();
-                }
-            }
-        }
-
-        private void DoComPortPropertyChanged(object? source, PropertyChangedEventArgs e) {
-            if (e.PropertyName == "Text") {
-                var comPort = this.settings.ComPort.Text;
-                if (comPort != null && comPort.Length > 0) {
-                    this.serialControl.Restart(comPort);
-                } else {
-                    this.serialControl.Cancel();
+                    try{
+                        await this.RemoteControl.Cancel();
+                    } catch(TaskCanceledException) {
+                        // Intentionally suppress
+                    }
                 }
             }
         }
@@ -289,12 +317,15 @@ namespace Antflip
         }
 
         private async void DoMessageReceived(object? source, K3SMessageReceivedEventArgs e) {
+            this.serialConnected = e.Message.Connected;
+            this.OnPropertyChanged(nameof(this.AntennaText));
             if (e.Message.Transmit == true) {
                 this.lastTransmitTimestamp = DateTime.UtcNow;
                 this.IsEnabled = false;
             } else if(e.Message.Transmit == false) {
+                var freeze = this.lastTransmitTimestamp;
                 await Task.Delay(100);
-                if (this.lastTransmitTimestamp.AddMilliseconds(100) <= DateTime.UtcNow) {
+                if (this.lastTransmitTimestamp == freeze) {
                     this.IsEnabled = true;
                 }
             }

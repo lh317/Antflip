@@ -139,17 +139,19 @@ namespace Antflip.Pages
 
     public class ComPort : ComboBoxContext
     {
+        private string[] comPorts = Array.Empty<string>();
+
         public ComPort() {
             var portName = Registry.K3ComPort;
-            if (portName == null) {
-                this.selectedIndex = -1;
-            } else {
-                this.selectedIndex = Array.FindIndex(ComPorts, p => p == portName);
+            if (portName != null) {
                 this.text = portName;
             }
         }
 
-        public String[] ComPorts { get; } = SerialPort.GetPortNames();
+        public String[] ComPorts {
+            get => this.comPorts;
+            set => Set(ref this.comPorts, value);
+        }
 
         public override int SelectedIndex {
             get => base.SelectedIndex;
@@ -168,6 +170,51 @@ namespace Antflip.Pages
                 if (-1 == this.SelectedIndex) {
                     Registry.K3ComPort = value;
                 }
+            }
+        }
+
+        public void DoLoaded(object? source, RoutedEventArgs? e) {
+            this.ComPorts = SerialPort.GetPortNames();
+            var portName = Registry.K3ComPort;
+            if (portName == null) {
+                this.SelectedIndex = -1;
+            } else {
+                this.selectedIndex = Array.FindIndex(ComPorts, p => p == portName);
+                this.text = portName;
+                this.OnPropertyChanged(nameof(SelectedIndex));
+                this.OnPropertyChanged(nameof(Text));
+            }
+        }
+    }
+
+    public class BaudRate : ComboBoxContext {
+        public BaudRate() {
+            var baudRate = Registry.K3BaudRate;
+            if (baudRate == null) {
+                this.selectedIndex = -1;
+            } else {
+                this.selectedIndex = Array.FindIndex(BaudRates, b => b == baudRate);
+            }
+        }
+
+        public int[] BaudRates { get; } = new int[] {4800, 9600, 19200, 38400, 57600, 112500};
+
+        public override int SelectedIndex {
+            get => base.SelectedIndex;
+            set {
+                base.SelectedIndex = value;
+                if (-1 != value) {
+                    Registry.K3BaudRate = this.BaudRates[value];
+                }
+            }
+        }
+
+        public int? Rate {
+            get {
+                if (-1 == this.SelectedIndex) {
+                    return null;
+                }
+                return this.BaudRates[this.selectedIndex];
             }
         }
     }
@@ -295,6 +342,10 @@ namespace Antflip.Pages
         public Interface Interface { get; } = new Interface();
 
         public ComPort ComPort { get; } = new ComPort();
+
+        public BaudRate BaudRate {get; } = new BaudRate();
+
+        public ICommand? ReconnectCommand {get;  set; } = null;
 
         private int _selectedIndex = -1;
         public int SelectedIndex {

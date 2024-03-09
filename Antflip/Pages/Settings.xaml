@@ -28,6 +28,11 @@ limitations under the License.
       <ui:Page.Resources>
         <antflip:EnumToDisplayConverter x:Key="radioConverter" />
       </ui:Page.Resources>
+    <Behaviors:Interaction.Triggers>
+        <Behaviors:EventTrigger EventName="Loaded">
+            <Behaviors:CallMethodAction TargetObject="{Binding ComPort}" MethodName="DoLoaded" />
+        </Behaviors:EventTrigger>
+    </Behaviors:Interaction.Triggers>
     <ScrollViewer>
         <ui:SimpleStackPanel HorizontalAlignment="Left">
             <TextBlock Style="{DynamicResource SubtitleTextBlockStyle}">Config</TextBlock>
@@ -128,9 +133,13 @@ limitations under the License.
                 <TextBlock Style="{DynamicResource BodyTextBlockStyle}" Text="{Binding Address, StringFormat=Address: {0}}" VerticalAlignment="Center" />
             </ui:SimpleStackPanel>
             <TextBlock>Serial</TextBlock>
-            <ui:SimpleStackPanel Orientation="Horizontal" DataContext="{Binding ComPort}">
-                <ComboBox ItemsSource="{Binding ComPorts}" SelectedIndex="{Binding SelectedIndex}" Width="256" Margin="0,0,10,0"
-                           IsEditable="True" Text="{Binding Text}" />
+            <ui:SimpleStackPanel Orientation="Horizontal">
+                <ComboBox DataContext="{Binding ComPort}" ItemsSource="{Binding ComPorts}" SelectedIndex="{Binding SelectedIndex}" Width="256" Margin="0,0,10,0"
+                          IsEditable="True" Text="{Binding Text}" />
+                <ComboBox DataContext="{Binding BaudRate}" ItemsSource="{Binding BaudRates}" SelectedIndex="{Binding SelectedIndex}" Width="128" Margin="0,0,10,0"
+                          IsEditable="False" />
+                <Button Content="Reconnect" Command="{Binding ReconnectCommand}">
+                </Button>
             </ui:SimpleStackPanel>
         </ui:SimpleStackPanel>
     </ScrollViewer>
