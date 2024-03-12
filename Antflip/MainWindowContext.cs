@@ -29,6 +29,7 @@ using Tomlyn;
 using Antflip.Pages;
 using Antflip.USBRelay;
 
+
 namespace Antflip
 {
     public abstract class MenuItem
@@ -116,6 +117,7 @@ namespace Antflip
         private bool isEnabled = true;
         private Antenna? antenna = null;
         private readonly K3SSerialControl serialControl = new();
+        private bool serialConnected = false;
         private DateTime lastTransmitTimestamp = DateTime.UtcNow;
         private DateTime lastBandTimestamp = DateTime.UtcNow;
         private ICommand? upCommand = null;
@@ -193,7 +195,23 @@ namespace Antflip
 
         public Antenna? Antenna {
             get => this.antenna;
-            set => this.Set(ref this.antenna, value);
+            set {
+                this.Set(ref this.antenna, value);
+                this.OnPropertyChanged(nameof(this.AntennaText));
+            }
+        }
+
+        public string? AntennaText {
+            get {
+                var value = new EnumToDisplayConverter().Convert(this.antenna, typeof(string), null, CultureInfo.CurrentUICulture);
+                if (value is not null && value != DependencyProperty.UnsetValue) {
+                    return (string)value;
+                } else if (this.serialConnected) {
+                    return this.settings.ComPort.Text;
+                } else {
+                    return "DISC";
+                }
+            }
         }
 
         private void DoConfigPropertyChanged(object? source, PropertyChangedEventArgs e) {
@@ -289,12 +307,15 @@ namespace Antflip
         }
 
         private async void DoMessageReceived(object? source, K3SMessageReceivedEventArgs e) {
+            this.serialConnected = e.Message.Connected;
+            this.OnPropertyChanged(nameof(this.AntennaText));
             if (e.Message.Transmit == true) {
                 this.lastTransmitTimestamp = DateTime.UtcNow;
                 this.IsEnabled = false;
             } else if(e.Message.Transmit == false) {
+                var freeze = this.lastTransmitTimestamp;
                 await Task.Delay(100);
-                if (this.lastTransmitTimestamp.AddMilliseconds(100) <= DateTime.UtcNow) {
+                if (this.lastTransmitTimestamp == freeze) {
                     this.IsEnabled = true;
                 }
             }

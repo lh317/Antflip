@@ -131,6 +131,8 @@ limitations under the License.
             <ui:SimpleStackPanel Orientation="Horizontal" DataContext="{Binding ComPort}">
                 <ComboBox ItemsSource="{Binding ComPorts}" SelectedIndex="{Binding SelectedIndex}" Width="256" Margin="0,0,10,0"
                            IsEditable="True" Text="{Binding Text}" />
+                <Button Content="Reconnect" Command="{Binding ReconnectCommand}">
+                </Button>
             </ui:SimpleStackPanel>
         </ui:SimpleStackPanel>
     </ScrollViewer>

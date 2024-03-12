@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Security.Cryptography;
@@ -64,17 +65,25 @@ namespace Antflip
             return new K3SMessage{Antenna = antenna, Band = band};
         }
 
+        private static K3SMessage FromIF(byte[] buffer, int start) {
+            var freq = Encoding.ASCII.GetString(buffer, start + 2, 11);
+            Band band = BandMethods.FromFrequency(Int32.Parse(freq));
+            bool transmit = buffer[start + 28] == (byte)'1';
+            return new K3SMessage{Band = band, Transmit = transmit};
+        }
+
         public static K3SMessage? Parse(byte[] buffer, int start, int length) {
             // Unclear what the encoding actually is
             var prefix = Encoding.ASCII.GetString(buffer, start, 2);
             return (prefix, length) switch {
                 ("TQ", 3) => new K3SMessage{Transmit = buffer[start + 2] == (byte)'1'},
                 ("DS", 12) => FromDS(buffer, start),
+                ("IF", 37) => FromIF(buffer, start),
                 _ => null,
-            };;
-
+            };
         }
 
+        public bool Connected {get; init;} = true;
 
         public bool? Transmit {get; init;} = null;
 
@@ -85,7 +94,7 @@ namespace Antflip
 
     public class K3SSerialClient : IDisposable
     {
-        private static readonly byte[] AI2 = {(byte)'A', (byte)'I', (byte)'2', (byte)';'};
+        private static readonly byte[] MSG = {(byte)'D', (byte)'B', (byte)';', (byte) 'T', (byte)'Q', (byte)';'};
         private readonly SerialPort serialPort;
         private readonly byte[] buffer = new byte[64];
         int offset = 0;
@@ -94,24 +103,18 @@ namespace Antflip
             this.serialPort = new SerialPort(port);
         }
 
-        public async Task<List<K3SMessage>> ReceiveAsync() {
-            var messages = new List<K3SMessage>();
+        public void Open() {
             if (!this.serialPort.IsOpen) {
-                try {
-                    this.serialPort.Open();
-                    await this.serialPort.BaseStream.WriteAsync(AI2);
-                } catch(Exception) {
-                    MessageBox.Show($"Failed to open serial port {serialPort.PortName}, please reconnect");
-                    throw;
-                }
+                this.serialPort.Open();
             }
+        }
+
+        public async Task<List<K3SMessage>> ReceiveAsync() {
+            this.Open();
+            var messages = new List<K3SMessage>();
             while(true) {
-                try {
-                    this.offset += await this.serialPort.BaseStream.ReadAsync(this.buffer.AsMemory(this.offset, this.buffer.Length - offset));
-                } catch(Exception) {
-                    MessageBox.Show("Serial port error, please reconnect");
-                    throw;
-                }
+                var memory = this.buffer.AsMemory(this.offset, this.buffer.Length - offset);
+                this.offset += await this.serialPort.BaseStream.ReadAsync(memory);
                 var start = 0;
                 var semicolon = Array.FindIndex(this.buffer, start, this.offset - start, (b) => b == (byte)';');
                 while (semicolon >= 0) {
@@ -134,6 +137,14 @@ namespace Antflip
             }
         }
 
+        public async Task WriteAsync() {
+            this.Open();
+            while (true) {
+                await this.serialPort.BaseStream.WriteAsync(MSG);
+                await Task.Delay(100);
+            }
+        }
+
         public void Dispose() {
            serialPort.Close();
            GC.SuppressFinalize(this);
@@ -153,26 +164,32 @@ namespace Antflip
 
         protected override async Task Start(string port, CancellationToken token) {
             using var client = new K3SSerialClient(port);
-            var task = client.ReceiveAsync();
-            while (true) {
-                await task.WaitAsync(token);
-                if (task.IsCompletedSuccessfully) {
-                    var messages = task.Result;
-                    messages.Reverse();
-                    var tx = messages.FirstOrDefault(m => m?.Transmit != null, null);
-                    if (tx != null) {
-                        this.MessageReceived?.Invoke(this, new(tx));
+            try {
+                client.Open();
+                this.MessageReceived?.Invoke(this, new(new()));
+
+                var write = client.WriteAsync();
+                var recv = client.ReceiveAsync();
+                while (true) {
+                    await Task.WhenAny(write, recv).WaitAsync(token);
+                    if (recv.IsCompletedSuccessfully) {
+                        foreach (var message in recv.Result) {
+                            this.MessageReceived?.Invoke(this, new(message));
+                        }
                     }
-                    var ant = messages.FirstOrDefault(m => m?.Antenna != null, null);
-                    if (ant != null && ant != tx) {
-                        this.MessageReceived?.Invoke(this, new(ant));
+                    if (recv.IsCompleted) {
+                        recv = client.ReceiveAsync();
                     }
                 }
-                if (task.IsCompleted) {
-                    task = client.ReceiveAsync();
+            } catch(Exception e) {
+                try {
+                    EventLog.WriteEntry("Application", e.ToString(), EventLogEntryType.Warning);
+                } catch(Exception) {
+                    // intentional suppress
                 }
+                this.MessageReceived?.Invoke(this, new(new K3SMessage{Connected=false}));
+                throw;
             }
         }
     }
-
 }
