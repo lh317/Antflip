@@ -19,6 +19,8 @@ namespace Antflip
 {
     public abstract class AsyncLoop<T> : IDisposable
     {
+        private SemaphoreSlim semaphore = new(1, 1);
+
         private CancellationTokenSource cancellationTokenSource = new();
 
         private Task? loop = null;
@@ -26,28 +28,45 @@ namespace Antflip
         public void Dispose() {
             this.cancellationTokenSource.Cancel();
             this.cancellationTokenSource.Dispose();
+            this.semaphore.Dispose();
             GC.SuppressFinalize(this);
         }
 
         public async Task<Task> Restart(T value) {
+            await semaphore.WaitAsync();
             try {
-                await this.Cancel();
-            } catch(TaskCanceledException) {
-                // Intentional suppression
+                try {
+                    await this.Cancel();
+                } catch(TaskCanceledException) {
+                    // Intentional suppression
+                }
+                this.loop = this.Start(value, this.cancellationTokenSource.Token);
+                return this.loop;
+            } finally {
+                semaphore.Release();
             }
-            this.loop = this.Start(value, this.cancellationTokenSource.Token);
-            return this.loop;
         }
 
         public async Task Cancel() {
-            if (loop != null) {
-                this.cancellationTokenSource.Cancel();
-                try{
-                    await this.loop;
-                } finally {
-                    this.cancellationTokenSource.Dispose();
-                    this.cancellationTokenSource = new CancellationTokenSource();
-                    this.loop = null;
+            bool unlock = false;
+            if (semaphore.CurrentCount > 0) {
+                await semaphore.WaitAsync();
+                unlock = true;
+            }
+            try {
+                if (loop != null) {
+                    this.cancellationTokenSource.Cancel();
+                    try{
+                        await this.loop;
+                    } finally {
+                        this.cancellationTokenSource.Dispose();
+                        this.cancellationTokenSource = new CancellationTokenSource();
+                        this.loop = null;
+                    }
+                }
+            } finally {
+                if (unlock) {
+                    semaphore.Release();
                 }
             }
         }

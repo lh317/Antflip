@@ -131,8 +131,7 @@ namespace Antflip
             this.settings.PropertyChanged += this.DoConfigPropertyChanged;
             this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.settings.Interface.PropertyChanged += this.DoInterfacePropertyChanged;
-            //this.settings.ComPort.PropertyChanged += this.DoComPortPropertyChanged;
-            this.settings.ComPort.ReconnectCommand = this.ReconnectCommand;
+            this.settings.ReconnectCommand = this.ReconnectCommand;
 
             DoConfigPropertyChanged(this, new PropertyChangedEventArgs("RelayData"));
             this.ActuateCommand = new RelayCommand<RelayActions>(
@@ -216,11 +215,12 @@ namespace Antflip
             }
         }
 
-        public ICommand ReconnectCommand => new RelayCommand<ComPort>(
-            async (comPort) => {
-                var portName = comPort?.Text;
-                if (portName != null && portName.Length > 0) {
-                    await this.serialControl.Restart(portName);
+        public ICommand ReconnectCommand => new RelayCommand<object>(
+            async (_) => {
+                var portName = this.settings.ComPort.Text;
+                var baudRate = this.settings.BaudRate.BaudRate;
+                if (portName != null && portName.Length > 0 && baudRate != null) {
+                    await this.serialControl.Restart((portName, baudRate));
                 } else {
                     try {
                         await this.serialControl.Cancel();
@@ -264,21 +264,6 @@ namespace Antflip
                 } else {
                     try{
                         await this.RemoteControl.Cancel();
-                    } catch(TaskCanceledException) {
-                        // Intentionally suppress
-                    }
-                }
-            }
-        }
-
-        private async void DoComPortPropertyChanged(object? source, PropertyChangedEventArgs e) {
-            if (e.PropertyName == "Text") {
-                var comPort = this.settings.ComPort.Text;
-                if (comPort != null && comPort.Length > 0) {
-                    await this.serialControl.Restart(comPort);
-                } else {
-                    try {
-                        await this.serialControl.Cancel();
                     } catch(TaskCanceledException) {
                         // Intentionally suppress
                     }

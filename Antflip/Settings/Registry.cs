@@ -98,6 +98,16 @@ namespace Antflip.Settings
             }
         }
 
+        public static int? K3BaudRate {
+            get => Get<int>("K3BaudRate", 38400);
+            set {
+                if (value == null) {
+                    return;
+                }
+                Set("K3BaudRate", value);
+            }
+        }
+
         public static void SortSavedBoardOrder(this IList<USBRelayBoard> boards) {
             var map = new Dictionary<string, int>();
             try {
