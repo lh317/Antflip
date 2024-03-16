@@ -29,18 +29,26 @@ namespace Antflip
             GC.SuppressFinalize(this);
         }
 
-        public Task Restart(T value) {
-            this.Cancel();
+        public async Task<Task> Restart(T value) {
+            try {
+                await this.Cancel();
+            } catch(TaskCanceledException) {
+                // Intentional suppression
+            }
             this.loop = this.Start(value, this.cancellationTokenSource.Token);
             return this.loop;
         }
 
-        public void Cancel() {
+        public async Task Cancel() {
             if (loop != null) {
                 this.cancellationTokenSource.Cancel();
-                this.cancellationTokenSource.Dispose();
-                this.cancellationTokenSource = new CancellationTokenSource();
-                this.loop = null;
+                try{
+                    await this.loop;
+                } finally {
+                    this.cancellationTokenSource.Dispose();
+                    this.cancellationTokenSource = new CancellationTokenSource();
+                    this.loop = null;
+                }
             }
         }
 

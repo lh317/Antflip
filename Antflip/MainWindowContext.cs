@@ -131,7 +131,9 @@ namespace Antflip
             this.settings.PropertyChanged += this.DoConfigPropertyChanged;
             this.settings.Boards.CollectionChanged += ((s, e) => this.DoBoardCollectionChanged());
             this.settings.Interface.PropertyChanged += this.DoInterfacePropertyChanged;
-            this.settings.ComPort.PropertyChanged += this.DoComPortPropertyChanged;
+            //this.settings.ComPort.PropertyChanged += this.DoComPortPropertyChanged;
+            this.settings.ComPort.ReconnectCommand = this.ReconnectCommand;
+
             DoConfigPropertyChanged(this, new PropertyChangedEventArgs("RelayData"));
             this.ActuateCommand = new RelayCommand<RelayActions>(
                 a => this.usbRelay?.Actuate(a ?? throw new ArgumentNullException("Relay Actions Were null"))
@@ -144,10 +146,10 @@ namespace Antflip
             var comPort = this.settings.ComPort.Text;
             if (!DesignerProperties.GetIsInDesignMode(new DependencyObject())) {
                 if (address != null) {
-                    this.RemoteControl.Restart(address);
+                    var _ = this.RemoteControl.Restart(address);
                 }
                 if (null != comPort && comPort.Length > 0) {
-                   this.serialControl.Restart(comPort);
+                   var _ = this.serialControl.Restart(comPort);
                 }
             }
         }
@@ -214,6 +216,21 @@ namespace Antflip
             }
         }
 
+        public ICommand ReconnectCommand => new RelayCommand<ComPort>(
+            async (comPort) => {
+                var portName = comPort?.Text;
+                if (portName != null && portName.Length > 0) {
+                    await this.serialControl.Restart(portName);
+                } else {
+                    try {
+                        await this.serialControl.Cancel();
+                    } catch (OperationCanceledException) {
+                        // Intentional suppress
+                    }
+                }
+            }
+        );
+
         private void DoConfigPropertyChanged(object? source, PropertyChangedEventArgs e) {
             if (e.PropertyName == "RotorName") {
                 this.RemoteControl.RotorName = this.settings.RotorName;
@@ -239,24 +256,32 @@ namespace Antflip
             }
         }
 
-        private void DoInterfacePropertyChanged(object? source, PropertyChangedEventArgs e) {
+        private async void DoInterfacePropertyChanged(object? source, PropertyChangedEventArgs e) {
             if (e.PropertyName == "Address") {
                 var address = this.settings.Interface.Address;
                 if (address != null) {
-                    this.RemoteControl.Restart(address);
+                    await this.RemoteControl.Restart(address);
                 } else {
-                    this.RemoteControl.Cancel();
+                    try{
+                        await this.RemoteControl.Cancel();
+                    } catch(TaskCanceledException) {
+                        // Intentionally suppress
+                    }
                 }
             }
         }
 
-        private void DoComPortPropertyChanged(object? source, PropertyChangedEventArgs e) {
+        private async void DoComPortPropertyChanged(object? source, PropertyChangedEventArgs e) {
             if (e.PropertyName == "Text") {
                 var comPort = this.settings.ComPort.Text;
                 if (comPort != null && comPort.Length > 0) {
-                    this.serialControl.Restart(comPort);
+                    await this.serialControl.Restart(comPort);
                 } else {
-                    this.serialControl.Cancel();
+                    try {
+                        await this.serialControl.Cancel();
+                    } catch(TaskCanceledException) {
+                        // Intentionally suppress
+                    }
                 }
             }
         }

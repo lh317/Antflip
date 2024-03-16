@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,37 +52,47 @@ namespace Antflip
         public AsyncAutoResetEvent BandChangeDone {get;} = new AsyncAutoResetEvent(false);
 
         protected override async Task Start(IPAddress address, CancellationToken token) {
-            using var rotorClient = new N1MMRotorClient(address);
-            using var n1mmClient = new N1MMUdpClient(address);
-            var rotorTask = rotorClient.ReceiveAsync();
-            var udpTask = n1mmClient.ReceiveAsync();
-            while (true) {
-                await Task.WhenAny(rotorTask, udpTask).WaitAsync(token);
-                if (rotorTask.IsCompletedSuccessfully) {
-                    var message = rotorTask.Result;
-                    if (message.Name == this.RotorName) {
-                        var ev = new BandChangedEventArgs(message.Band);
-                        if (null != this.BandChanged) {
-                            this.BandChangeDone.Reset();
-                            this.BandChanged.Invoke(this, ev);
-                            await this.BandChangeDone.WaitOneAsync(token);
-                        }
-                        if (!ev.Cancel) {
-                            this.DirectionChanged?.Invoke(this, new(message.Band, message.Azimuth));
+            try {
+                using var rotorClient = new N1MMRotorClient(address);
+                using var n1mmClient = new N1MMUdpClient(address);
+                var rotorTask = rotorClient.ReceiveAsync();
+                var udpTask = n1mmClient.ReceiveAsync();
+                while (true) {
+                    await Task.WhenAny(rotorTask, udpTask).WaitAsync(token);
+                    if (rotorTask.IsCompletedSuccessfully) {
+                        var message = rotorTask.Result;
+                        if (message.Name == this.RotorName) {
+                            var ev = new BandChangedEventArgs(message.Band);
+                            if (null != this.BandChanged) {
+                                this.BandChangeDone.Reset();
+                                this.BandChanged.Invoke(this, ev);
+                                await this.BandChangeDone.WaitOneAsync(token);
+                            }
+                            if (!ev.Cancel) {
+                                this.DirectionChanged?.Invoke(this, new(message.Band, message.Azimuth));
+                            }
                         }
                     }
-                }
-                if (udpTask.IsCompletedSuccessfully) {
-                    var message = udpTask.Result;
-                    if (message.Radio == this.Radio && null != this.BandChanged) {
-                        this.BandChanged.Invoke(this, new(message.Band));
+                    if (udpTask.IsCompletedSuccessfully) {
+                        var message = udpTask.Result;
+                        if (message.Radio == this.Radio && null != this.BandChanged) {
+                            this.BandChanged.Invoke(this, new(message.Band));
+                        }
+                    }
+                    if (rotorTask.IsCompleted) {
+                        rotorTask = rotorClient.ReceiveAsync();
+                    }
+                    if (udpTask.IsCompleted) {
+                        udpTask = n1mmClient.ReceiveAsync();
                     }
                 }
-                if (rotorTask.IsCompleted) {
-                    rotorTask = rotorClient.ReceiveAsync();
-                }
-                if (udpTask.IsCompleted) {
-                    udpTask = n1mmClient.ReceiveAsync();
+            } catch(Exception e) {
+                if (e is not TaskCanceledException) {
+                    try {
+                        EventLog.WriteEntry("Application", e.ToString(), EventLogEntryType.Warning);
+                    } catch (Exception) {
+                        // intentional suppress
+                    }
                 }
             }
         }

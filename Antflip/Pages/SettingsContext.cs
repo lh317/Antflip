@@ -171,9 +171,7 @@ namespace Antflip.Pages
             }
         }
 
-        public ICommand ReconnectCommand => new RelayCommand<object>(
-            (_) => this.Text = this.Text
-        );
+        public ICommand? ReconnectCommand {get;  set; } = null;
     }
 
     public enum ConfigSource
