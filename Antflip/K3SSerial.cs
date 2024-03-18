@@ -150,7 +150,10 @@ namespace Antflip
 
         public async Task WriteAsync() {
             this.Open();
-            await this.serialPort.BaseStream.WriteAsync(MSG);
+            var remaining = this.serialPort.WriteBufferSize - this.serialPort.BytesToWrite;
+            if (remaining >= MSG.Length) {
+                await this.serialPort.BaseStream.WriteAsync(MSG);
+            }
             await Task.Delay(200);
         }
 
@@ -181,6 +184,7 @@ namespace Antflip
 
     public class K3SSerialControl : AsyncLoop<(string, int)>
     {
+        private static readonly EventInstance eventInstance = new(0x8FFF03E8L, 0, EventLogEntryType.Warning);
         private bool first = true;
 
         public event EventHandler<K3SMessageReceivedEventArgs>? MessageReceived;
@@ -213,9 +217,9 @@ namespace Antflip
                     }
                 }
             } catch(Exception e) {
-                if (e is not OperationCanceledException) {
+                if (e is not OperationCanceledException && EventLog.SourceExists("Antflip")) {
                     try {
-                        EventLog.WriteEntry("Application", e.ToString(), EventLogEntryType.Warning);
+                        EventLog.WriteEvent("Antflip", eventInstance, port, baudRate, e.ToString());
                     } catch (Exception) {
                         // intentional suppress
                     }
