@@ -115,6 +115,7 @@ namespace Antflip
         // Must be an object to support settings page.
         private object? selectedItem = null;
         private bool isEnabled = true;
+        private Band? band = null;
         private Antenna? antenna = null;
         private readonly K3SSerialControl serialControl = new();
         private bool serialConnected = false;
@@ -303,10 +304,10 @@ namespace Antflip
         }
 
         private void DoBandChanged(object? source, BandChangedEventArgs e) {
-            if (this.isEnabled && this.lastBandTimestamp.AddMilliseconds(250) <= DateTime.UtcNow) {
-                var bandItem = this.MenuItems[(int)e.Band];
-                if (bandItem != this.SelectedItem) {
-                    this.SelectedItem = bandItem;
+            if (this.isEnabled && this.band != e.Band && this.lastBandTimestamp.AddMilliseconds(250) <= DateTime.UtcNow) {
+                if (e.Band != this.band) {
+                    this.band = e.Band;
+                    this.SelectedItem = this.MenuItems[(int)e.Band];
                 } else {
                     this.RemoteControl.BandChangeDone.Set();
                 }
@@ -333,9 +334,9 @@ namespace Antflip
                 this.Antenna = ant;
             }
             if (this.isEnabled && this.lastBandTimestamp.AddMilliseconds(250) <= DateTime.UtcNow && e.Message.Band is Band band) {
-                var bandItem = this.MenuItems[(int)band];
-                if (bandItem != this.SelectedItem) {
-                    this.SelectedItem = bandItem;
+                if (band != this.band) {
+                    this.band = band;
+                    this.SelectedItem = this.MenuItems[(int)band];
                 }
             }
         }
